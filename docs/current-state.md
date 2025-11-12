@@ -37,7 +37,9 @@ pj-plateau-kumap/
 
 ## 技術的な状態
 
-- **リポジトリ**: まだGit初期化されていない
+- **リポジトリ**: ✓ Git初期化完了、GitHubにプッシュ済み
+  - URL: https://github.com/newtaro24/pj-plateau-kumap
+  - プライベートリポジトリ
 - **依存関係**: まだpackage.jsonなし
 - **コード**: まだ実装なし
 - **MCPサーバー**: Context7（稼働中）
