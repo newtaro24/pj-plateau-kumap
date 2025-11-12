@@ -108,6 +108,7 @@ MCPステータス確認: `claude mcp list`
 
 **プロジェクトコマンド**:
 - `/commit` - Gitコミットを作成（プロジェクトのコミットルールに従う）
+- `/memorize` - プロジェクトの重要情報をメモリに記録（新しいセッション開始時に使用）
 
 ---
 
@@ -163,7 +164,10 @@ MCPステータス確認: `claude mcp list`
    npm run dev
    ```
 
-4. **このファイル（CLAUDE.md）と docs/current-state.md を読んで現在の状態を確認**
+4. **Claude Codeで作業開始**:
+   - このファイル（CLAUDE.md）は自動的に読み込まれる
+   - さらに `/memorize` コマンドを実行して重要情報をメモリに記録
+   - `docs/current-state.md` で詳細な状態を確認
 
 5. **Context7 MCPを設定**（まだの場合）:
    ```bash
