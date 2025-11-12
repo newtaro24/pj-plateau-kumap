@@ -19,19 +19,25 @@
 
 @docs/current-state.md
 
-**フェーズ**: Phase 1 - コンセプト策定・技術調査
+**フェーズ**: Phase 2 - 基本機能実装開始
 
 **完了したこと**:
-- プロジェクトコンセプト整理
-- PLATEAU技術調査完了
-- 技術スタック決定（TypeScript + React + Cesium JS）
-- ドキュメント構造整理完了
-- Context7 MCP設定完了
+- Phase 1完了（コンセプト、技術調査、技術スタック決定）
+- Vite + React + TypeScript + Cesium JS環境構築完了
+- 札幌市中心の3D地球儀表示（動作確認OK）
+- テスト用ヒグママーカー3箇所追加（円山公園周辺、藻岩山麓、南区山林地帯）
+- マーカークリックで情報表示機能実装
 
-**次にやること**:
-1. Vite + React + TypeScript + Cesium JS環境のセットアップ
-2. 札幌市中心の3D地球儀表示（Hello World）
-3. PLATEAUデータとヒグマデータの入手方法調査
+**現在動いているもの**:
+- `cd app && npm run dev` で開発サーバー起動
+- 札幌市の3D衛星画像マップ
+- 3つの赤いヒグマ目撃マーカー（クリックで情報表示）
+
+**次にやること（優先度順）**:
+1. マーカーのスタイル改善（アイコン、色分け）
+2. カメラ位置の最適化（より地表に近づける）
+3. 実際のヒグマデータ調査・統合
+4. PLATEAUデータ統合準備
 
 ---
 
@@ -138,5 +144,34 @@ MCPステータス確認: `claude mcp list`
 
 ---
 
+## 別のPCで作業を再開する手順
+
+1. **リポジトリをクローン**:
+   ```bash
+   git clone https://github.com/newtaro24/pj-plateau-kumap.git
+   cd pj-plateau-kumap
+   ```
+
+2. **依存関係をインストール**:
+   ```bash
+   cd app
+   npm install
+   ```
+
+3. **開発サーバー起動**:
+   ```bash
+   npm run dev
+   ```
+
+4. **このファイル（CLAUDE.md）と docs/current-state.md を読んで現在の状態を確認**
+
+5. **Context7 MCPを設定**（まだの場合）:
+   ```bash
+   claude mcp add context7 -- npx -y @upstash/context7-mcp
+   ```
+
+---
+
 **更新履歴**:
-- 2025-11-12: プロジェクト開始、メモリファイル整備、Context7 MCP設定、Gitコミットルール設定
+- 2025-11-12 17:00: プロジェクト開始、メモリファイル整備、Context7 MCP設定、Gitコミットルール設定
+- 2025-11-12 18:50: Phase 2開始、Cesium動作確認、ヒグママーカー実装完了
