@@ -1,8 +1,11 @@
-import { Viewer, Entity, CameraFlyTo } from "resium";
-import { Cartesian3, Color } from "cesium";
+import { Viewer, Entity, CameraFlyTo, Cesium3DTileset } from "resium";
+import { Cartesian3, Color, Ion, IonResource } from "cesium";
 import { DataSourceCredit } from "./components/DataSourceCredit";
-import bearSightingsData from '/bear_sightings_2025.geojson';
+import bearSightingsData from './data/bear_sightings_2025.json';
 import './App.css'
+
+// Cesium ionのアクセストークンを設定
+Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN || '';
 
 interface BearSighting {
   type: string;
@@ -55,6 +58,16 @@ function App() {
       >
         <CameraFlyTo destination={sapporoPosition} duration={0} />
 
+        {/* PLATEAU 3D都市モデル（札幌市中央区） */}
+        {import.meta.env.VITE_CESIUM_ASSET_ID && (
+          <Cesium3DTileset
+            url={IonResource.fromAssetId(
+              Number(import.meta.env.VITE_CESIUM_ASSET_ID)
+            )}
+          />
+        )}
+
+        {/* ヒグマ出没マーカー */}
         {bearSightings.map((sighting, index) => {
           const { coordinates } = sighting.geometry;
           const { date, time, ward, location, situation, dangerLevel } = sighting.properties;

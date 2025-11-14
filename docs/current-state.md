@@ -1,10 +1,10 @@
 # 現在の開発状態 (Current State)
 
-**最終更新**: 2025-11-14 14:30
+**最終更新**: 2025-11-14 17:15
 
 ## 現在のフェーズ
 
-**Phase 2: 基本機能実装中 - ヒグマデータ統合完了**
+**Phase 2: 基本機能実装完了 - PLATEAU 3D都市モデル統合成功 🎉**
 
 ## 完了したこと
 
@@ -18,7 +18,7 @@
 - [x] Context7 MCP設定（最新ドキュメント自動取得）
 - [x] 全ドキュメントの日本語化
 
-### Phase 2 進行中 🚧
+### Phase 2 完了 ✅
 - [x] Vite + React + TypeScript環境構築
 - [x] Cesium JS + Resium インストール・設定
 - [x] 札幌市中心の3D地球儀表示（動作確認完了）
@@ -28,29 +28,39 @@
 - [x] **CSV → GeoJSON変換スクリプト作成**
 - [x] **データソースとライセンス情報のドキュメント化**
 - [x] **アプリ内クレジット表記追加**
+- [x] **コードリファクタリング（静的import、コンポーネント分割）**
+- [x] **PLATEAUデータ調査・ダウンロード完了（2.2GB）**
+- [x] **中央区データ抽出・ZIP化（28MB）**
+- [x] **Cesium ion統合方針決定**
+- [x] **Cesium ionアカウント作成＆データアップロード** 🎉
+- [x] **PLATEAU 3D都市モデル統合完了（中央区）** 🎉
+- [x] **3D建物とヒグママーカーの統合表示** 🎉
 
 ## 現在動いているもの
 
 **アプリケーションURL**: `cd app && npm run dev` で起動（http://localhost:5173/）
-- 札幌市の衛星画像表示（Bing Maps）
-- **318件の実際のヒグマ出没データを表示**
-- 危険度による色分けマーカー：
-  - 🔴 高危険度（red）: ヒグマ目撃
-  - 🟡 中危険度（yellow）: 足跡・フン確認
-  - 🟢 低危険度（green）: その他
-- クリックで詳細情報表示（日時、場所、状況）
-- ドラッグ・ズームで地図操作可能
+
+### 統合された機能 🎉
+- **PLATEAU 3D都市モデル**（札幌市中央区）
+  - Cesium ionでホスティング
+  - 建物が立体的に表示
+- **実際のヒグマ出没データ**（318件、2025年度）
+  - 危険度による色分けマーカー：
+    - 🔴 高危険度（red）: ヒグマ目撃
+    - 🟡 中危険度（yellow）: 足跡・フン確認
+    - 🟢 低危険度（green）: その他
+  - クリックで詳細情報表示（日時、場所、状況）
+- **Bing Maps衛星画像**（Cesiumデフォルト）
+- ドラッグ・ズーム・回転で3D地図操作可能
 - 右下にデータソースのクレジット表記
 
 ## 次にやること
 
-### 優先度: 高
-1. **PLATEAUデータ統合**（次のメインタスク）
-   - 札幌市3D都市モデルのダウンロード
-   - PLATEAU GIS Converterのインストール
-   - CityGML → 3D Tiles変換
-   - Cesiumで読み込みテスト
-   - 建物データの可視化
+### 優先度: 高 🔥
+1. **カメラ位置・視点の最適化**
+   - 中央区が見やすい初期視点に調整
+   - ヒグマ出没が多いエリアが見える角度
+   - ズームレベルの調整
 
 ### 優先度: 中
 2. **時系列フィルタリング機能**
@@ -74,18 +84,28 @@ pj-plateau-kumap/
 ├── README.md                    # 人間向けプロジェクト概要
 ├── CLAUDE.md                    # Claude Code作業メモリ（メイン）
 ├── app/                         # Vite + React + TypeScript アプリ
+│   ├── .env.local.template      # Cesium ion認証情報テンプレート
 │   ├── src/
-│   │   └── App.tsx              # メインアプリケーション
-│   └── public/
-│       └── bear_sightings_2025.geojson  # ヒグマ出没データ
+│   │   ├── App.tsx              # メインアプリケーション
+│   │   ├── components/
+│   │   │   └── DataSourceCredit.tsx  # クレジット表記コンポーネント
+│   │   ├── data/
+│   │   │   └── bear_sightings_2025.json  # ヒグマ出没データ
+│   │   └── vite-env.d.ts        # TypeScript型定義
+│   └── vite.config.ts           # Vite設定（Cesium統合）
 ├── data/                        # データファイル
 │   ├── bear_sightings_2025.csv  # 元データ（CSV）
 │   └── bear_sightings_2025.geojson  # 変換済みデータ
+├── plateau-data/                # PLATEAUデータ ✨
+│   ├── sapporo_3dtiles_v4.zip (2.2GB)  # 全データ
+│   ├── chuo-ku_lod1.zip (28MB) # 中央区（アップロード準備完了）
+│   └── 01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01101_chuo-ku_lod1/
 ├── scripts/                     # データ変換スクリプト
 │   └── csv-to-geojson.ts        # CSV→GeoJSON変換
 └── docs/
     ├── current-state.md         # このファイル（現在の状態）
-    ├── data-sources.md          # データソースとライセンス情報 ✨
+    ├── next-steps.md            # 次回作業手順 ✨
+    ├── data-sources.md          # データソースとライセンス情報
     ├── todo-roadmap.md          # TODOとロードマップ
     ├── spec.md                  # 機能仕様
     ├── tech-stack.md            # 技術詳細
@@ -97,9 +117,15 @@ pj-plateau-kumap/
 - **リポジトリ**: ✓ Git初期化完了、GitHubにプッシュ済み
   - URL: https://github.com/newtaro24/pj-plateau-kumap
   - プライベートリポジトリ
-- **依存関係**: まだpackage.jsonなし
-- **コード**: まだ実装なし
+- **依存関係**: ✓ package.json完備
+  - React 18、TypeScript、Cesium JS、Resium
+  - Vite 7（ビルドツール）
+- **コード**: ✓ Phase 2実装完了
+  - 3D地図表示
+  - PLATEAU統合（Cesium ion）
+  - ヒグマデータ表示
 - **MCPサーバー**: Context7（稼働中）
+- **外部サービス**: Cesium ion（3D Tiles配信）
 
 ## ブロッカー/課題
 

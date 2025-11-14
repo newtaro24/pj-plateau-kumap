@@ -5,4 +5,8 @@ import cesium from 'vite-plugin-cesium'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), cesium()],
+  assetsInclude: ['**/*.geojson'],
+  json: {
+    stringify: false
+  }
 })
