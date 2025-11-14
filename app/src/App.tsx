@@ -1,15 +1,31 @@
 import { Viewer, Entity, CameraFlyTo } from "resium";
 import { Cartesian3, Color } from "cesium";
-import { useBearSightings } from "./hooks/useBearSightings";
 import { DataSourceCredit } from "./components/DataSourceCredit";
+import bearSightingsData from '/bear_sightings_2025.geojson';
 import './App.css'
+
+interface BearSighting {
+  type: string;
+  geometry: {
+    type: string;
+    coordinates: [number, number];
+  };
+  properties: {
+    date: string;
+    time: string;
+    ward: string;
+    location: string;
+    situation: string;
+    dangerLevel: string;
+  };
+}
 
 function App() {
   // 札幌市の座標 (緯度: 43.0642°N, 経度: 141.3545°E, 高度: 10000m)
   const sapporoPosition = Cartesian3.fromDegrees(141.3545, 43.0642, 10000);
 
-  // 実際のヒグマ出没データ（カスタムフックから読み込み）
-  const { data: bearSightings, isLoading, error } = useBearSightings('/bear_sightings_2025.geojson');
+  // 実際のヒグマ出没データ（静的インポート）
+  const bearSightings = bearSightingsData.features as BearSighting[];
 
   // 危険度に応じた色とサイズを返す関数
   const getDangerStyle = (level: string) => {
@@ -25,34 +41,8 @@ function App() {
     }
   };
 
-  // エラー表示
-  if (error) {
-    return (
-      <div style={{ padding: '20px', color: 'red' }}>
-        <h2>データの読み込みに失敗しました</h2>
-        <p>{error.message}</p>
-      </div>
-    );
-  }
-
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      {isLoading && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          zIndex: 2000,
-        }}>
-          <p>ヒグマ出没データを読み込み中...</p>
-        </div>
-      )}
-
       <Viewer
         full
         timeline={false}
