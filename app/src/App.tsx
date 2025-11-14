@@ -1,45 +1,15 @@
 import { Viewer, Entity, CameraFlyTo } from "resium";
 import { Cartesian3, Color } from "cesium";
-import { useState, useEffect } from "react";
+import { useBearSightings } from "./hooks/useBearSightings";
+import { DataSourceCredit } from "./components/DataSourceCredit";
 import './App.css'
-
-interface BearSighting {
-  type: string;
-  geometry: {
-    type: string;
-    coordinates: [number, number];
-  };
-  properties: {
-    date: string;
-    time: string;
-    ward: string;
-    location: string;
-    situation: string;
-    dangerLevel: string;
-  };
-}
-
-interface GeoJSONData {
-  type: string;
-  features: BearSighting[];
-}
 
 function App() {
   // 札幌市の座標 (緯度: 43.0642°N, 経度: 141.3545°E, 高度: 10000m)
   const sapporoPosition = Cartesian3.fromDegrees(141.3545, 43.0642, 10000);
 
-  // 実際のヒグマ出没データ（GeoJSONから読み込み）
-  const [bearSightings, setBearSightings] = useState<BearSighting[]>([]);
-
-  useEffect(() => {
-    fetch('/bear_sightings_2025.geojson')
-      .then(response => response.json())
-      .then((data: GeoJSONData) => {
-        setBearSightings(data.features);
-        console.log(`✅ Loaded ${data.features.length} bear sightings`);
-      })
-      .catch(error => console.error('Error loading bear data:', error));
-  }, []);
+  // 実際のヒグマ出没データ（カスタムフックから読み込み）
+  const { data: bearSightings, isLoading, error } = useBearSightings('/bear_sightings_2025.geojson');
 
   // 危険度に応じた色とサイズを返す関数
   const getDangerStyle = (level: string) => {
@@ -55,8 +25,34 @@ function App() {
     }
   };
 
+  // エラー表示
+  if (error) {
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        <h2>データの読み込みに失敗しました</h2>
+        <p>{error.message}</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+      {isLoading && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          zIndex: 2000,
+        }}>
+          <p>ヒグマ出没データを読み込み中...</p>
+        </div>
+      )}
+
       <Viewer
         full
         timeline={false}
@@ -91,31 +87,11 @@ function App() {
         })}
       </Viewer>
 
-      {/* データソースのクレジット表記 */}
-      <div style={{
-        position: 'absolute',
-        bottom: '10px',
-        right: '10px',
-        background: 'rgba(0, 0, 0, 0.7)',
-        color: 'white',
-        padding: '8px 12px',
-        borderRadius: '4px',
-        fontSize: '12px',
-        zIndex: 1000,
-      }}>
-        <div>データ提供: 札幌市環境局</div>
-        <div style={{ fontSize: '10px', marginTop: '2px' }}>
-          <a
-            href="https://ckan.pf-sapporo.jp/dataset/sapporo_bear_appearance"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#88ccff', textDecoration: 'none' }}
-          >
-            札幌市オープンデータ
-          </a>
-          {' '}(CC BY 4.0)
-        </div>
-      </div>
+      <DataSourceCredit
+        dataSourceName="札幌市オープンデータ"
+        dataSourceUrl="https://ckan.pf-sapporo.jp/dataset/sapporo_bear_appearance"
+        license="CC BY 4.0"
+      />
     </div>
   )
 }
