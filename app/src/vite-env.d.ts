@@ -18,7 +18,9 @@ declare module '*.geojson' {
 
 interface ImportMetaEnv {
   readonly VITE_CESIUM_ION_TOKEN: string;
-  readonly VITE_CESIUM_ASSET_ID: string;
+  readonly VITE_CESIUM_ASSET_ID_CHUO: string;
+  readonly VITE_CESIUM_ASSET_ID_MINAMI: string;
+  readonly VITE_CESIUM_ASSET_ID_NISHI: string;
 }
 
 interface ImportMeta {

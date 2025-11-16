@@ -24,8 +24,9 @@ interface BearSighting {
 }
 
 function App() {
-  // 札幌市の座標 (緯度: 43.0642°N, 経度: 141.3545°E, 高度: 10000m)
-  const sapporoPosition = Cartesian3.fromDegrees(141.3545, 43.0642, 10000);
+  // 札幌市中央区の座標（3D建物が見やすい位置）
+  // 経度: 141.35°E, 緯度: 43.06°N, 高度: 5000m（俯瞰視点）
+  const chuokuPosition = Cartesian3.fromDegrees(141.35, 43.06, 5000);
 
   // 実際のヒグマ出没データ（静的インポート）
   const bearSightings = bearSightingsData.features as BearSighting[];
@@ -56,13 +57,31 @@ function App() {
         geocoder={false}
         sceneModePicker={false}
       >
-        <CameraFlyTo destination={sapporoPosition} duration={0} />
+        <CameraFlyTo destination={chuokuPosition} duration={0} />
 
         {/* PLATEAU 3D都市モデル（札幌市中央区） */}
-        {import.meta.env.VITE_CESIUM_ASSET_ID && (
+        {import.meta.env.VITE_CESIUM_ASSET_ID_CHUO && (
           <Cesium3DTileset
             url={IonResource.fromAssetId(
-              Number(import.meta.env.VITE_CESIUM_ASSET_ID)
+              Number(import.meta.env.VITE_CESIUM_ASSET_ID_CHUO)
+            )}
+          />
+        )}
+
+        {/* PLATEAU 3D都市モデル（札幌市南区） */}
+        {import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI && (
+          <Cesium3DTileset
+            url={IonResource.fromAssetId(
+              Number(import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI)
+            )}
+          />
+        )}
+
+        {/* PLATEAU 3D都市モデル（札幌市西区） */}
+        {import.meta.env.VITE_CESIUM_ASSET_ID_NISHI && (
+          <Cesium3DTileset
+            url={IonResource.fromAssetId(
+              Number(import.meta.env.VITE_CESIUM_ASSET_ID_NISHI)
             )}
           />
         )}
