@@ -1,10 +1,10 @@
 # 現在の開発状態 (Current State)
 
-**最終更新**: 2025-11-14 18:15
+**最終更新**: 2025-11-17 15:30
 
 ## 現在のフェーズ
 
-**Phase 2: 完了 - 3区の3D都市モデル統合完了 🎉**
+**Phase 2: 完了 - 開発環境整備完了 ✅**
 
 ## 完了したこと
 
@@ -38,6 +38,34 @@
 - [x] **カメラ位置最適化（中央区中心、高度5000m）**
 - [x] **南区・西区のPLATEAUデータアップロード**
 - [x] **3区（中央区・南区・西区）の同時表示実装** 🎉
+
+### Phase 2.5: 開発環境整備完了（2025-11-17）✅
+- [x] **Biome統合とVSCode設定完了**
+  - VSCode拡張機能インストール
+  - 保存時自動フォーマット設定
+  - ルートとapp/のsettings.json整理・統合
+  - quickfix.biome → source.fixAll.biome に更新
+- [x] **Git pre-commit hooks設定（husky）**
+  - 自動で型チェック + Biomeリントが実行
+  - コミット時の品質チェック自動化
+- [x] **プロジェクト構造の整理**
+  - Biome, husky, tsxをルートpackage.jsonに移動
+  - app/package.jsonは純粋にアプリ依存関係のみ
+  - Monorepo風の構造に整理
+- [x] **ドキュメント整備**
+  - ルートREADME: シンプルなクイックスタート
+  - app/README.md: 詳細なセットアップ手順（完全書き直し）
+  - .env.example作成（環境変数テンプレート）
+  - データ更新ワークフローのドキュメント化
+- [x] **不要ファイル削除・整理**
+  - plateau-data/ (2.3GB) 削除 → Cesium ionにアップロード済み
+  - data/ ディレクトリ削除 → 不要なCSV/GeoJSON
+  - app/.vscode/settings.json 削除 → ルートに集約
+  - .gitignore更新
+- [x] **データ更新ワークフロー整備**
+  - scripts/csv-to-geojson.ts修正（CLI引数対応）
+  - npm run convert-data スクリプト追加
+  - READMEにデータ更新手順を追加
 
 ## 現在動いているもの
 
@@ -90,8 +118,15 @@
 pj-plateau-kumap/
 ├── README.md                    # 人間向けプロジェクト概要
 ├── CLAUDE.md                    # Claude Code作業メモリ（メイン）
+├── package.json                 # ルート: ツール管理（Biome, husky, tsx）
+├── .vscode/
+│   └── settings.json            # VSCode設定（Biome統合、自動フォーマット）
+├── .husky/
+│   └── pre-commit               # Git pre-commit hook（型チェック + lint）
 ├── app/                         # Vite + React + TypeScript アプリ
-│   ├── .env.local.template      # Cesium ion認証情報テンプレート
+│   ├── .env.example             # 環境変数テンプレート ✨
+│   ├── package.json             # アプリ依存関係のみ
+│   ├── README.md                # アプリ詳細セットアップ手順 ✨
 │   ├── src/
 │   │   ├── App.tsx              # メインアプリケーション
 │   │   ├── components/
@@ -100,20 +135,11 @@ pj-plateau-kumap/
 │   │   │   └── bear_sightings_2025.json  # ヒグマ出没データ
 │   │   └── vite-env.d.ts        # TypeScript型定義
 │   └── vite.config.ts           # Vite設定（Cesium統合）
-├── data/                        # データファイル
-│   ├── bear_sightings_2025.csv  # 元データ（CSV）
-│   └── bear_sightings_2025.geojson  # 変換済みデータ
-├── plateau-data/                # PLATEAUデータ ✨
-│   ├── sapporo_3dtiles_v4.zip (2.2GB)  # 全データ
-│   ├── chuo-ku_lod1.zip (28MB)   # 中央区（Cesium ionにアップロード済み）
-│   ├── minami-ku_lod1.zip (39MB) # 南区（Cesium ionにアップロード済み）
-│   ├── nishi-ku_lod1.zip (36MB)  # 西区（Cesium ionにアップロード済み）
-│   └── （各区の展開済みフォルダ）
 ├── scripts/                     # データ変換スクリプト
-│   └── csv-to-geojson.ts        # CSV→GeoJSON変換
+│   └── csv-to-geojson.ts        # CSV→JSON変換（CLI引数対応）✨
 └── docs/
     ├── current-state.md         # このファイル（現在の状態）
-    ├── next-steps.md            # 次回作業手順 ✨
+    ├── next-steps.md            # 次回作業手順
     ├── data-sources.md          # データソースとライセンス情報
     ├── todo-roadmap.md          # TODOとロードマップ
     ├── spec.md                  # 機能仕様
@@ -121,20 +147,29 @@ pj-plateau-kumap/
     └── research.md              # 調査ログ
 ```
 
+**削除されたディレクトリ**:
+- `plateau-data/`: Cesium ionにアップロード済み（ローカル不要）
+- `data/`: CSV/GeoJSONファイル → 必要時に変換スクリプトで再生成
+
 ## 技術的な状態
 
 - **リポジトリ**: ✓ Git初期化完了、GitHubにプッシュ済み
   - URL: https://github.com/newtaro24/pj-plateau-kumap
   - プライベートリポジトリ
 - **依存関係**: ✓ package.json完備
-  - React 18、TypeScript、Cesium JS、Resium
-  - Vite 7（ビルドツール）
+  - React 19、TypeScript、Cesium JS、Resium
+  - Vite 6（ビルドツール）
+- **開発ツール**: ✓ 完全セットアップ済み
+  - Biome（linter/formatter）- VSCode統合、自動フォーマット
+  - Husky（Git hooks）- pre-commitで型チェック + lint
+  - tsx（TypeScriptランナー）- スクリプト実行
 - **コード**: ✓ Phase 2実装完了
   - 3D地図表示
-  - PLATEAU統合（Cesium ion）
-  - ヒグマデータ表示
+  - PLATEAU統合（Cesium ion、3区）
+  - ヒグマデータ表示（318件）
 - **MCPサーバー**: Context7（稼働中）
 - **外部サービス**: Cesium ion（3D Tiles配信）
+- **VSCode設定**: ✓ 保存時自動フォーマット、Biome統合
 
 ## ブロッカー/課題
 
