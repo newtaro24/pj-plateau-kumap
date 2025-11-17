@@ -7,8 +7,7 @@
 
   // 保存時にBiomeで自動修正（lint + format）
   "editor.codeActionsOnSave": {
-    "quickfix.biome": "explicit",
-    "source.organizeImports.biome": "explicit"
+    "source.fixAll.biome": "explicit"
   },
 
   // Biome設定

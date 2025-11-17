@@ -1,4 +1,42 @@
 {
+    // Biomeをデフォルトフォーマッターに設定
+    "editor.defaultFormatter": "biomejs.biome",
+
+    // 保存時に自動フォーマット
+    "editor.formatOnSave": true,
+
+    // 保存時にBiomeで自動修正（lint + format）
+    "editor.codeActionsOnSave": {
+        "source.fixAll.biome": "explicit"
+    },
+
+    // Biome拡張機能の設定（ルートのBiomeを使用）
+    "biome.lspBin": "${workspaceFolder}/node_modules/@biomejs/biome/bin/biome",
+
+    // Biome設定
+    "[javascript]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+
+    // TypeScript設定
+    "typescript.tsdk": "app/node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#0fa225",
         "activityBar.background": "#0fa225",
