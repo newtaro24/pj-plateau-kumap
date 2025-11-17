@@ -10,7 +10,7 @@ declare module '*.geojson' {
         type: string;
         coordinates: [number, number];
       };
-      properties: Record<string, any>;
+      properties: Record<string, unknown>;
     }>;
   };
   export default value;

@@ -4,19 +4,25 @@ interface DataSourceCreditProps {
   license: string;
 }
 
-export function DataSourceCredit({ dataSourceName, dataSourceUrl, license }: DataSourceCreditProps) {
+export function DataSourceCredit({
+  dataSourceName,
+  dataSourceUrl,
+  license,
+}: DataSourceCreditProps) {
   return (
-    <div style={{
-      position: 'absolute',
-      bottom: '10px',
-      right: '10px',
-      background: 'rgba(0, 0, 0, 0.7)',
-      color: 'white',
-      padding: '8px 12px',
-      borderRadius: '4px',
-      fontSize: '12px',
-      zIndex: 1000,
-    }}>
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '10px',
+        right: '10px',
+        background: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        padding: '8px 12px',
+        borderRadius: '4px',
+        fontSize: '12px',
+        zIndex: 1000,
+      }}
+    >
       <div>データ提供: 札幌市環境局</div>
       <div style={{ fontSize: '10px', marginTop: '2px' }}>
         <a
@@ -26,8 +32,8 @@ export function DataSourceCredit({ dataSourceName, dataSourceUrl, license }: Dat
           style={{ color: '#88ccff', textDecoration: 'none' }}
         >
           {dataSourceName}
-        </a>
-        {' '}({license})
+        </a>{' '}
+        ({license})
       </div>
     </div>
   );

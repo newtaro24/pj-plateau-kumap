@@ -1,8 +1,9 @@
-import { Viewer, Entity, CameraFlyTo, Cesium3DTileset } from "resium";
-import { Cartesian3, Color, Ion, IonResource } from "cesium";
-import { DataSourceCredit } from "./components/DataSourceCredit";
+import { Cartesian3, Color, createWorldTerrainAsync, Ion, IonResource, type Terrain } from 'cesium';
+import { useEffect, useState } from 'react';
+import { CameraFlyTo, Cesium3DTileset, Entity, Viewer } from 'resium';
+import { DataSourceCredit } from './components/DataSourceCredit';
 import bearSightingsData from './data/bear_sightings_2025.json';
-import './App.css'
+import './App.css';
 
 // Cesium ionのアクセストークンを設定
 Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN || '';
@@ -31,14 +32,23 @@ function App() {
   // 実際のヒグマ出没データ（静的インポート）
   const bearSightings = bearSightingsData.features as BearSighting[];
 
+  // 地形データを非同期で読み込む
+  const [terrain, setTerrain] = useState<Terrain | undefined>(undefined);
+
+  useEffect(() => {
+    createWorldTerrainAsync().then((terrainData) => {
+      setTerrain(terrainData);
+    });
+  }, []);
+
   // 危険度に応じた色とサイズを返す関数
   const getDangerStyle = (level: string) => {
     switch (level) {
-      case "high":
+      case 'high':
         return { color: Color.RED, size: 20 };
-      case "medium":
+      case 'medium':
         return { color: Color.YELLOW, size: 16 };
-      case "low":
+      case 'low':
         return { color: Color.LIME, size: 12 };
       default:
         return { color: Color.WHITE, size: 10 };
@@ -56,45 +66,40 @@ function App() {
         baseLayerPicker={false}
         geocoder={false}
         sceneModePicker={false}
+        terrain={terrain}
       >
         <CameraFlyTo destination={chuokuPosition} duration={0} />
 
         {/* PLATEAU 3D都市モデル（札幌市中央区） */}
         {import.meta.env.VITE_CESIUM_ASSET_ID_CHUO && (
           <Cesium3DTileset
-            url={IonResource.fromAssetId(
-              Number(import.meta.env.VITE_CESIUM_ASSET_ID_CHUO)
-            )}
+            url={IonResource.fromAssetId(Number(import.meta.env.VITE_CESIUM_ASSET_ID_CHUO))}
           />
         )}
 
         {/* PLATEAU 3D都市モデル（札幌市南区） */}
         {import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI && (
           <Cesium3DTileset
-            url={IonResource.fromAssetId(
-              Number(import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI)
-            )}
+            url={IonResource.fromAssetId(Number(import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI))}
           />
         )}
 
         {/* PLATEAU 3D都市モデル（札幌市西区） */}
         {import.meta.env.VITE_CESIUM_ASSET_ID_NISHI && (
           <Cesium3DTileset
-            url={IonResource.fromAssetId(
-              Number(import.meta.env.VITE_CESIUM_ASSET_ID_NISHI)
-            )}
+            url={IonResource.fromAssetId(Number(import.meta.env.VITE_CESIUM_ASSET_ID_NISHI))}
           />
         )}
 
         {/* ヒグマ出没マーカー */}
-        {bearSightings.map((sighting, index) => {
+        {bearSightings.map((sighting) => {
           const { coordinates } = sighting.geometry;
           const { date, time, ward, location, situation, dangerLevel } = sighting.properties;
           const style = getDangerStyle(dangerLevel);
 
           return (
             <Entity
-              key={index}
+              key={`${date}-${time}-${ward}-${location}`}
               name={`${ward} - ${date} ${time}`}
               description={`ヒグマ出没情報\n日時: ${date} ${time}\n場所: ${location}\n状況: ${situation}\n危険度: ${dangerLevel}`}
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
@@ -115,7 +120,7 @@ function App() {
         license="CC BY 4.0"
       />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
