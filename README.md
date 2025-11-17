@@ -77,110 +77,36 @@ Web開発で実装（ブラウザで直接アクセス可能、共有しやす�
 
 ## 開発環境のセットアップ
 
-### 必要な環境
-
-- **Node.js**: 20.x 以上（LTS推奨）
-- **npm**: Node.jsに付属
-- **Git**: バージョン管理
-
-### セットアップ手順
-
-#### 1. リポジトリのクローン
+### クイックスタート
 
 ```bash
+# 1. クローン
 git clone https://github.com/newtaro24/pj-plateau-kumap.git
 cd pj-plateau-kumap
-```
 
-#### 2. 依存関係のインストール
-
-**ルートディレクトリ**でツール群をインストール：
-```bash
+# 2. 依存関係のインストール
 npm install
-```
+cd app && npm install && cd ..
 
-**appディレクトリ**でアプリケーションの依存関係をインストール：
-```bash
+# 3. 環境変数の設定
 cd app
-npm install
-cd ..
-```
+cp .env.example .env
+# .envファイルを編集してCesium ionトークンを設定
 
-#### 3. 環境変数の設定
-
-`app/.env` ファイルを作成し、Cesium ionのアクセストークンを設定：
-
-```bash
-cd app
-cp .env.example .env  # サンプルファイルがある場合
-```
-
-`.env` の内容：
-```env
-VITE_CESIUM_ION_TOKEN=your_cesium_ion_token_here
-VITE_CESIUM_ASSET_ID_CHUO=your_chuo_asset_id
-VITE_CESIUM_ASSET_ID_MINAMI=your_minami_asset_id
-VITE_CESIUM_ASSET_ID_NISHI=your_nishi_asset_id
-```
-
-Cesium ionのトークンは [Cesium ion](https://ion.cesium.com/) で取得できます。
-
-#### 4. 開発サーバーの起動
-
-```bash
-cd app
+# 4. 開発サーバー起動
 npm run dev
 ```
 
-ブラウザで `http://localhost:5173` にアクセスすると、アプリケーションが表示されます。
-
-### VSCode推奨設定（オプション）
-
-このプロジェクトではVSCodeの使用を推奨しています。
-
-#### 推奨拡張機能のインストール
-
-プロジェクトを開くと、以下の拡張機能のインストールが推奨されます：
-- **Biome** (`biomejs.biome`) - コードフォーマット＆リント
-
-手動でインストールする場合：
-1. VSCodeで `Cmd+Shift+X` (Mac) / `Ctrl+Shift+X` (Windows/Linux)
-2. "Biome" を検索してインストール
-
-#### 自動フォーマット
-
-VSCodeで保存時に自動的にコードがフォーマットされます。
-`.vscode/settings.json` に設定済み。
+詳細なセットアップ手順は [app/README.md](app/README.md) を参照してください。
 
 ### 開発コマンド
 
 ```bash
-# 開発サーバー起動
-cd app && npm run dev
-
-# TypeScript型チェック
-cd app && npm run type-check
-
-# Biomeリント実行
-npm run lint
-
-# コード自動修正
-npm run fix
-
-# 型チェック + リント
-npm run check
-
-# プロダクションビルド
-cd app && npm run build
+npm run dev      # 開発サーバー起動
+npm run lint     # Biomeリント
+npm run fix      # 自動修正
+npm run check    # 型チェック + リント
 ```
-
-### Git commit時の自動チェック
-
-このプロジェクトでは、Git commitする際に自動的に以下のチェックが実行されます：
-- TypeScript型チェック
-- Biomeリント
-
-エラーがある場合、コミットは失敗します。`npm run fix` で自動修正してから再度コミットしてください。
 
 ## 開発ステータス
 

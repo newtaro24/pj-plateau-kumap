@@ -1,73 +1,155 @@
-# React + TypeScript + Vite
+# アプリケーションディレクトリ (app/)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+このディレクトリには、札幌市ヒグマ危険度3Dマップのフロントエンドアプリケーションが含まれています。
 
-Currently, two official plugins are available:
+## 技術スタック
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - UIライブラリ
+- **TypeScript** - 型安全な開発
+- **Vite** - 高速なビルドツール＆開発サーバー
+- **Cesium JS** - 3D地球儀・地理空間データ可視化
+- **Resium** - Cesium用のReactコンポーネントライブラリ
 
-## React Compiler
+## セットアップ
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 前提条件
 
-## Expanding the ESLint configuration
+- Node.js 20.x 以上
+- npm（Node.jsに付属）
+- ルートディレクトリで `npm install` を実行済み
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 依存関係のインストール
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 環境変数の設定
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+`.env` ファイルを作成します：
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env
 ```
+
+`.env` ファイルを編集し、以下の値を設定：
+
+```env
+# Cesium ion アクセストークン
+# https://ion.cesium.com/ で取得
+VITE_CESIUM_ION_TOKEN=your_token_here
+
+# PLATEAU 3D都市モデルのアセットID
+# Cesium ionにアップロードした3D TilesのアセットID
+VITE_CESIUM_ASSET_ID_CHUO=your_chuo_asset_id
+VITE_CESIUM_ASSET_ID_MINAMI=your_minami_asset_id
+VITE_CESIUM_ASSET_ID_NISHI=your_nishi_asset_id
+```
+
+## 開発
+
+### 開発サーバーの起動
+
+```bash
+npm run dev
+```
+
+ブラウザで http://localhost:5173 を開いてください。
+
+### 利用可能なスクリプト
+
+```bash
+# 開発サーバー起動（HMR有効）
+npm run dev
+
+# プロダクションビルド
+npm run build
+
+# ビルド結果のプレビュー
+npm run preview
+
+# TypeScript型チェック
+npm run type-check
+```
+
+> **Note**: リント・フォーマットはルートディレクトリから実行します。
+> ```bash
+> cd ..
+> npm run lint    # Biomeリント
+> npm run fix     # 自動修正
+> ```
+
+## プロジェクト構造
+
+```
+app/
+├── public/              # 静的アセット
+├── src/
+│   ├── components/      # Reactコンポーネント
+│   │   └── DataSourceCredit.tsx
+│   ├── data/           # データファイル
+│   │   └── bear_sightings_2025.json
+│   ├── App.tsx         # メインアプリケーションコンポーネント
+│   ├── App.css         # アプリケーションスタイル
+│   ├── main.tsx        # エントリーポイント
+│   ├── index.css       # グローバルスタイル
+│   └── vite-env.d.ts   # Vite型定義
+├── index.html          # HTMLテンプレート
+├── package.json        # 依存関係
+├── tsconfig.json       # TypeScript設定
+└── vite.config.ts      # Vite設定
+
+```
+
+## 主要なライブラリ
+
+### Cesium JS
+
+3D地球儀と地理空間データの可視化を提供します。
+
+- 公式サイト: https://cesium.com/
+- ドキュメント: https://cesium.com/docs/
+
+### Resium
+
+CesiumのReactラッパーライブラリで、Cesiumのコンポーネントを宣言的に使用できます。
+
+- GitHub: https://github.com/reearth/resium
+- ドキュメント: https://resium.reearth.io/
+
+### データについて
+
+**ヒグマ出没データ**:
+- ファイル: `src/data/bear_sightings_2025.json`
+- 出典: [札幌市オープンデータ](https://ckan.pf-sapporo.jp/dataset/sapporo_bear_appearance)
+- ライセンス: CC BY 4.0
+
+**PLATEAU 3D都市モデル**:
+- Cesium ionにアップロード済みの3D Tilesを使用
+- 環境変数でアセットIDを指定
+
+## トラブルシューティング
+
+### Cesiumが表示されない
+
+1. `.env` ファイルが正しく設定されているか確認
+2. Cesium ionのトークンが有効か確認
+3. ブラウザのコンソールでエラーを確認
+
+### 3D建物が表示されない
+
+1. アセットIDが正しいか確認
+2. Cesium ionでアセットが公開されているか確認
+3. アセットの処理が完了しているか確認（Cesium ionダッシュボード）
+
+### 型エラーが出る
+
+```bash
+npm run type-check
+```
+
+で詳細なエラーを確認できます。
+
+## さらに詳しく
+
+プロジェクト全体の情報は[ルートディレクトリのREADME](../README.md)を参照してください。
