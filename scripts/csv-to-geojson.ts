@@ -100,7 +100,20 @@ function convertCSVToGeoJSON(csvPath: string, outputPath: string) {
 }
 
 // メイン処理
-const csvPath = path.join(__dirname, '../data/bear_sightings_2025.csv');
-const outputPath = path.join(__dirname, '../data/bear_sightings_2025.geojson');
+// コマンドライン引数でCSVファイルのパスを受け取る
+const args = process.argv.slice(2);
+if (args.length === 0) {
+  console.error('Usage: npm run convert-data <csv-file-path>');
+  console.error('Example: npm run convert-data ./bear_sightings_2025.csv');
+  process.exit(1);
+}
+
+const csvPath = path.resolve(args[0]);
+const outputPath = path.join(__dirname, '../app/src/data/bear_sightings_2025.json');
+
+if (!fs.existsSync(csvPath)) {
+  console.error(`❌ Error: CSV file not found: ${csvPath}`);
+  process.exit(1);
+}
 
 convertCSVToGeoJSON(csvPath, outputPath);

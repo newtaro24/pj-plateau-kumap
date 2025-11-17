@@ -108,6 +108,33 @@ npm run fix      # 自動修正
 npm run check    # 型チェック + リント
 ```
 
+## データ更新
+
+### ヒグマ出没データの更新方法
+
+最新のヒグマ出没情報を反映する場合は、以下の手順で実施します：
+
+```bash
+# 1. 札幌市オープンデータから最新のCSVファイルをダウンロード
+# https://ckan.pf-sapporo.jp/dataset/sapporo_bear_appearance
+
+# 2. CSVをGeoJSON/JSONに変換
+npm run convert-data <CSVファイルのパス>
+
+# 例：
+npm run convert-data ./bear_sightings_2025.csv
+```
+
+**変換処理**:
+- 入力: CSV形式のヒグマ出没データ（日付、時刻、区、出没場所、緯度、経度、状況）
+- 出力: `app/src/data/bear_sightings_2025.json` (GeoJSON形式)
+- 危険度判定: 状況フィールドから自動で危険度を判定（目撃=high、足跡/フン=medium、その他=low）
+
+**PLATEAU 3D都市モデル**:
+- 3D Tilesは[Cesium ion](https://ion.cesium.com/)にアップロード済み
+- ローカルには保存していません（容量削減のため）
+- アセットIDは `.env` ファイルで管理
+
 ## 開発ステータス
 
 **Phase 2: 基本機能実装**（現在）

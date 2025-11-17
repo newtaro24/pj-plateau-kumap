@@ -8,11 +8,14 @@
     "lint": "biome check ./app",
     "format": "biome format --write ./app",
     "fix": "biome check --write ./app",
-    "check": "cd app && npm run type-check && cd .. && biome check ./app"
+    "check": "cd app && npm run type-check && cd .. && biome check ./app",
+    "convert-data": "tsx scripts/csv-to-geojson.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.5",
+    "@types/node": "^24.10.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.6"
+    "lint-staged": "^16.2.6",
+    "tsx": "^4.20.6"
   }
 }
