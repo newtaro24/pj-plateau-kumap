@@ -38,10 +38,7 @@ yarn-error.log*
 .cache/
 
 # PLATEAU data files (large files)
-data/raw/*
-!data/raw/.gitkeep
-data/converted/*
-!data/converted/.gitkeep
+# Note: 3D Tiles are uploaded to Cesium ion, not stored locally
 plateau-data/
 
 # Cesium ion tokens (if any)
