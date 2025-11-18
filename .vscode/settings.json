@@ -1,39 +1,39 @@
 {
-    // Biomeをデフォルトフォーマッターに設定
-    "editor.defaultFormatter": "biomejs.biome",
+  // Biomeをデフォルトフォーマッターに設定
+  "editor.defaultFormatter": "biomejs.biome",
 
-    // 保存時に自動フォーマット
-    "editor.formatOnSave": true,
+  // 保存時に自動フォーマット
+  "editor.formatOnSave": true,
 
-    // 保存時にBiomeで自動修正（lint + format）
-    "editor.codeActionsOnSave": {
-        "source.fixAll.biome": "explicit"
-    },
+  // 保存時にBiomeで自動修正（lint + format）
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit"
+  },
 
-    // Biome拡張機能の設定（ルートのBiomeを使用）
-    "biome.lspBin": "${workspaceFolder}/node_modules/@biomejs/biome/bin/biome",
+  // Biome拡張機能の設定（ルートのBiomeを使用）
+  "biome.lspBin": "${workspaceFolder}/node_modules/@biomejs/biome/bin/biome",
 
-    // TypeScript設定
-    "typescript.tsdk": "app/node_modules/typescript/lib",
-    "typescript.enablePromptUseWorkspaceTsdk": true,
+  // TypeScript設定
+  "typescript.tsdk": "app/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
 
-    "workbench.colorCustomizations": {
-        "activityBar.activeBackground": "#92b4f2",
-        "activityBar.background": "#92b4f2",
-        "activityBar.foreground": "#15202b",
-        "activityBar.inactiveForeground": "#15202b99",
-        "activityBarBadge.background": "#e41b62",
-        "activityBarBadge.foreground": "#e7e7e7",
-        "commandCenter.border": "#15202b99",
-        "sash.hoverBorder": "#92b4f2",
-        "statusBar.background": "#6495ed",
-        "statusBar.foreground": "#15202b",
-        "statusBarItem.hoverBackground": "#3676e8",
-        "statusBarItem.remoteBackground": "#6495ed",
-        "statusBarItem.remoteForeground": "#15202b",
-        "titleBar.activeBackground": "#6495ed",
-        "titleBar.activeForeground": "#15202b",
-        "titleBar.inactiveBackground": "#6495ed99",
-        "titleBar.inactiveForeground": "#15202b99"
-    }
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#0fa225",
+    "activityBar.background": "#0fa225",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#0fa225",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#0fa225",
+    "statusBar.background": "#0fa225",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#0fa225",
+    "statusBarItem.remoteBackground": "#0fa225",
+    "statusBarItem.remoteForeground": "#15202b",
+    "titleBar.activeBackground": "#0fa225",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#0fa225",
+    "titleBar.inactiveForeground": "#15202b99"
+  }
 }
