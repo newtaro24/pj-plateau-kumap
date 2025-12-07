@@ -1,4 +1,4 @@
-import { Cartesian3, Color, createWorldTerrainAsync, Ion, IonResource, type Terrain } from 'cesium';
+import { Cartesian3, Color, Ion, IonResource, Terrain } from 'cesium';
 import { useEffect, useState } from 'react';
 import { CameraFlyTo, Cesium3DTileset, Entity, Viewer } from 'resium';
 import { DataSourceCredit } from './components/DataSourceCredit';
@@ -6,7 +6,9 @@ import bearSightingsData from './data/bear_sightings_2025.json';
 import './App.css';
 
 // Cesium ionのアクセストークンを設定
-Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN || '';
+const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
+console.log('Cesium Token exists:', !!cesiumToken);
+Ion.defaultAccessToken = cesiumToken || '';
 
 interface BearSighting {
   type: string;
@@ -25,6 +27,8 @@ interface BearSighting {
 }
 
 function App() {
+  console.log('App component rendering');
+
   // 札幌市中央区の座標（3D建物が見やすい位置）
   // 経度: 141.35°E, 緯度: 43.06°N, 高度: 5000m（俯瞰視点）
   const chuokuPosition = Cartesian3.fromDegrees(141.35, 43.06, 5000);
@@ -36,9 +40,14 @@ function App() {
   const [terrain, setTerrain] = useState<Terrain | undefined>(undefined);
 
   useEffect(() => {
-    createWorldTerrainAsync().then((terrainData) => {
+    console.log('App mounted, setting terrain...');
+    try {
+      const terrainData = Terrain.fromWorldTerrain();
+      console.log('Terrain initialized');
       setTerrain(terrainData);
-    });
+    } catch (err) {
+      console.error('Failed to initialize terrain:', err);
+    }
   }, []);
 
   // 危険度に応じた色とサイズを返す関数
