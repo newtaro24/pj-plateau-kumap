@@ -40,9 +40,9 @@ export class ErrorBoundary extends Component<Props, State> {
         >
           <h2>Something went wrong.</h2>
           <details style={{ whiteSpace: 'pre-wrap' }}>
-            {this.state.error && this.state.error.toString()}
+            {this.state.error?.toString()}
             <br />
-            {this.state.errorInfo && this.state.errorInfo.componentStack}
+            {this.state.errorInfo?.componentStack}
           </details>
         </div>
       );
