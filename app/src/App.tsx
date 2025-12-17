@@ -1,4 +1,4 @@
-import { Cartesian3, Color, Ion, IonResource, Terrain } from 'cesium';
+import { Cartesian3, Cesium3DTileFeature, Color, Ion, IonResource, Terrain } from 'cesium';
 import { useEffect, useState } from 'react';
 import { CameraFlyTo, Cesium3DTileset, Entity, Viewer } from 'resium';
 import { DataSourceCredit } from './components/DataSourceCredit';
@@ -64,6 +64,18 @@ function App() {
     }
   };
 
+  // 建物クリック時のハンドラ（デバッグ用）
+  const handleClick = (_: unknown, target: unknown) => {
+    if (target instanceof Cesium3DTileFeature) {
+      console.log('=== PLATEAU Building Properties ===');
+      const propertyIds = target.getPropertyIds();
+      for (const id of propertyIds) {
+        console.log(`${id}: ${target.getProperty(id)}`);
+      }
+      console.log('===================================');
+    }
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <Viewer
@@ -76,6 +88,7 @@ function App() {
         geocoder={false}
         sceneModePicker={false}
         terrain={terrain}
+        onClick={handleClick}
       >
         <CameraFlyTo destination={chuokuPosition} duration={0} />
 
