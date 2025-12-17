@@ -43,3 +43,6 @@ plateau-data/
 
 # Cesium ion tokens (if any)
 cesium-config.json
+
+# Playwright MCP (screenshots, etc.)
+.playwright-mcp/
