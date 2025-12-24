@@ -1,10 +1,15 @@
 import { Cartesian3, Color, Ion, IonResource, Rectangle } from 'cesium';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { CameraFlyTo, Cesium3DTileset, Entity, RectangleGraphics, Viewer } from 'resium';
 import { DataSourceCredit } from './components/DataSourceCredit';
 import { WalkMode } from './components/WalkMode';
 import bearSightingsData from './data/bear_sightings_2025.json';
 import safetyGridData from './data/safety-grid.json';
+import {
+  findNearestBuildingDistance,
+  formatDistance,
+  getEvacuationLevel,
+} from './utils/evacuationScore';
 import './App.css';
 
 // Cesium ionのアクセストークンを設定
@@ -62,6 +67,16 @@ function App() {
   const safetyGrid = safetyGridData.cells as SafetyCell[];
   const gridSize = safetyGridData.gridSize;
 
+  // 各出没地点の最寄り建物距離を計算（メモ化）
+  const sightingsWithDistance = useMemo(() => {
+    return bearSightings.map((sighting) => {
+      const [lon, lat] = sighting.geometry.coordinates;
+      const distance = findNearestBuildingDistance(lon, lat);
+      const level = getEvacuationLevel(distance);
+      return { ...sighting, distance, level };
+    });
+  }, [bearSightings]);
+
   // ヒートマップ表示切り替え
   const [showHeatmap, setShowHeatmap] = useState(true);
 
@@ -88,17 +103,17 @@ function App() {
   // 直近の出没データ（上位10件）
   const recentSightings = bearSightings.slice(0, 10);
 
-  // 危険度に応じた色とサイズを返す関数
-  const getDangerStyle = (level: string) => {
+  // 避難レベルに応じた色とサイズを返す関数
+  const getEvacuationStyle = (level: 'safe' | 'caution' | 'danger') => {
     switch (level) {
-      case 'high':
-        return { color: Color.RED, size: 20 };
-      case 'medium':
-        return { color: Color.YELLOW, size: 16 };
-      case 'low':
-        return { color: Color.LIME, size: 12 };
+      case 'safe':
+        return { color: Color.LIME, size: 14 }; // 緑: 50m以内
+      case 'caution':
+        return { color: Color.YELLOW, size: 16 }; // 黄: 50-200m
+      case 'danger':
+        return { color: Color.RED, size: 20 }; // 赤: 200m超
       default:
-        return { color: Color.WHITE, size: 10 };
+        return { color: Color.WHITE, size: 12 };
     }
   };
 
@@ -156,17 +171,33 @@ function App() {
             </Entity>
           ))}
 
-        {/* ヒグマ出没マーカー */}
-        {bearSightings.map((sighting) => {
+        {/* ヒグマ出没マーカー（避難場所スコア付き） */}
+        {sightingsWithDistance.map((sighting) => {
           const { coordinates } = sighting.geometry;
-          const { date, time, ward, location, situation, dangerLevel } = sighting.properties;
-          const style = getDangerStyle(dangerLevel);
+          const { date, time, ward, location, situation } = sighting.properties;
+          const style = getEvacuationStyle(sighting.level);
+          const distanceText = formatDistance(sighting.distance);
+          const levelText =
+            sighting.level === 'safe'
+              ? '🟢 逃げやすい'
+              : sighting.level === 'caution'
+                ? '🟡 やや遠い'
+                : '🔴 逃げ場が遠い';
 
           return (
             <Entity
               key={`${date}-${time}-${ward}-${location}`}
               name={`${ward} - ${date} ${time}`}
-              description={`ヒグマ出没情報\n日時: ${date} ${time}\n場所: ${location}\n状況: ${situation}\n危険度: ${dangerLevel}`}
+              description={`<div style="font-size:14px;">
+                <h3 style="margin:0 0 8px 0;">🐻 ヒグマ出没情報</h3>
+                <p><strong>日時:</strong> ${date} ${time}</p>
+                <p><strong>場所:</strong> ${location}</p>
+                <p><strong>状況:</strong> ${situation}</p>
+                <hr style="border-color:#666;margin:12px 0;">
+                <h4 style="margin:0 0 8px 0;">🏃 避難場所スコア</h4>
+                <p><strong>最寄り建物まで:</strong> <span style="font-size:18px;font-weight:bold;">${distanceText}</span></p>
+                <p>${levelText}</p>
+              </div>`}
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
               point={{
                 pixelSize: style.size,
@@ -207,9 +238,53 @@ function App() {
           minWidth: '200px',
         }}
       >
-        <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>🗺️ 逃げやすさマップ</div>
-
+        {/* 避難場所スコア凡例 */}
+        <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>🏃 避難場所スコア</div>
         <div style={{ marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <div
+              style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: '#32CD32',
+                borderRadius: '50%',
+                border: '2px solid white',
+              }}
+            />
+            <span style={{ fontSize: '12px' }}>50m以内（逃げやすい）</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <div
+              style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: '#FFD700',
+                borderRadius: '50%',
+                border: '2px solid white',
+              }}
+            />
+            <span style={{ fontSize: '12px' }}>50-200m（やや遠い）</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: '#FF0000',
+                borderRadius: '50%',
+                border: '2px solid white',
+              }}
+            />
+            <span style={{ fontSize: '12px' }}>200m超（逃げ場が遠い）</span>
+          </div>
+        </div>
+        <div style={{ fontSize: '11px', color: '#aaa', marginBottom: '12px' }}>
+          ※ マーカーをクリックで詳細表示
+        </div>
+
+        {/* ヒートマップ凡例 */}
+        <div style={{ paddingTop: '12px', borderTop: '1px solid #444', marginBottom: '12px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>🗺️ エリア安全度</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <div
               style={{
@@ -219,7 +294,7 @@ function App() {
                 borderRadius: '2px',
               }}
             />
-            <span style={{ fontSize: '12px' }}>建物多い（逃げやすい）</span>
+            <span style={{ fontSize: '12px' }}>建物多い</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <div
@@ -230,7 +305,7 @@ function App() {
                 borderRadius: '2px',
               }}
             />
-            <span style={{ fontSize: '12px' }}>やや少ない（注意）</span>
+            <span style={{ fontSize: '12px' }}>やや少ない</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div
@@ -241,7 +316,7 @@ function App() {
                 borderRadius: '2px',
               }}
             />
-            <span style={{ fontSize: '12px' }}>建物少ない（危険）</span>
+            <span style={{ fontSize: '12px' }}>建物少ない</span>
           </div>
         </div>
 
@@ -261,10 +336,6 @@ function App() {
         >
           {showHeatmap ? '✓ ヒートマップ表示中' : 'ヒートマップを表示'}
         </button>
-
-        <div style={{ marginTop: '12px', fontSize: '11px', color: '#aaa' }}>
-          ※ 建物密度に基づく概算値
-        </div>
 
         {/* ウォークモードセクション */}
         <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #444' }}>
