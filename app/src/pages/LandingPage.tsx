@@ -226,7 +226,7 @@ export function LandingPage() {
           直近の出没
         </h3>
         <div style={{ background: '#111', borderRadius: '8px', overflow: 'hidden' }}>
-          {recentSightings.map((sighting) => {
+          {recentSightings.map((sighting, index) => {
             const { date, time, ward, location, dangerLevel } = sighting.properties;
             return (
               <div

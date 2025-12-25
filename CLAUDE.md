@@ -69,6 +69,39 @@
 
 ---
 
+## 技術的な学び
+
+### PLATEAU 3D Tilesが浮いて見える問題と解決策
+
+**問題**: PLATEAUの建物がCesiumで表示すると地面から浮いて見える
+
+**原因**: 楕円体高 vs ジオイド高（標高）の違い
+- Cesiumは**WGS84楕円体**を基準に高さを計算
+- PLATEAUは**標高（ジオイド高）** = 東京湾平均海面基準で建物を配置
+- 日本ではジオイド高が約36〜42mあるため、地形データがないと建物が浮く
+
+**解決策**:
+1. **Cesium World Terrain を使用** - 地形を標高で描画するため、PLATEAU建物と整合する
+2. **depthTestAgainstTerrain を有効化** - 地形に対する深度テストで正確な表示
+3. **ベースマップをOpenStreetMapに変更** - 衛星画像の建物と3D建物の重複を回避
+
+**実装** (`MapPage.tsx`):
+```typescript
+// 地形データを使用
+const worldTerrain = Terrain.fromWorldTerrain();
+
+// Viewerに設定
+<Viewer
+  terrain={worldTerrain}
+  baseLayer={new ImageryLayer(osmImageryProvider)}
+>
+
+// 深度テストを有効化（useEffectで設定）
+viewer.scene.globe.depthTestAgainstTerrain = true;
+```
+
+---
+
 ## 環境変数
 
 `app/.env.example` を参照してCesium ionトークンとアセットIDを設定。

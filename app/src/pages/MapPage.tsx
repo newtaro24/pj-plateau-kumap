@@ -1,5 +1,16 @@
-import { Cartesian3, Color, Ion, IonResource, Rectangle } from 'cesium';
-import { useCallback, useMemo, useState } from 'react';
+import type { Viewer as CesiumViewer } from 'cesium';
+import {
+  Cartesian3,
+  Color,
+  ImageryLayer,
+  Ion,
+  IonResource,
+  OpenStreetMapImageryProvider,
+  Rectangle,
+  Terrain,
+} from 'cesium';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CesiumComponentRef } from 'resium';
 import { CameraFlyTo, Cesium3DTileset, Entity, RectangleGraphics, Viewer } from 'resium';
 import { DataSourceCredit } from '../components/DataSourceCredit';
 import { WalkMode } from '../components/WalkMode';
@@ -16,6 +27,16 @@ import {
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 Ion.defaultAccessToken = cesiumToken || '';
 
+// OpenStreetMapをベースマップとして使用（建物の写り込みを避ける）
+const osmImageryProvider = new OpenStreetMapImageryProvider({
+  url: 'https://tile.openstreetmap.org/',
+});
+
+// Cesium World Terrain（地形データ）を使用
+// PLATEAUの建物は標高（ジオイド高）で配置されているため、
+// 地形データがないと楕円体との高さの差（日本では約40m）で浮いて見える
+const worldTerrain = Terrain.fromWorldTerrain();
+
 // 安全度に応じた色を返す関数（緑=安全、赤=危険）
 function getSafetyColor(safety: number): Color {
   if (safety >= 0.7) {
@@ -31,8 +52,21 @@ function getSafetyColor(safety: number): Color {
 }
 
 export function MapPage() {
+  // Viewerへの参照
+  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
+
   // 札幌市中央区の座標（広域表示）
   const chuokuPosition = Cartesian3.fromDegrees(141.3, 43.0, 15000);
+
+  // Viewerが準備できたらdepthTestAgainstTerrainを有効化
+  useEffect(() => {
+    const viewer = viewerRef.current?.cesiumElement;
+    if (viewer) {
+      // 地形に対する深度テストを有効化
+      // 建物が地形の裏側に正しく隠れるようになる
+      viewer.scene.globe.depthTestAgainstTerrain = true;
+    }
+  }, []);
 
   // 実際のヒグマ出没データ
   const bearSightings = bearSightingsData.features as BearSighting[];
@@ -94,6 +128,7 @@ export function MapPage() {
   return (
     <div style={{ width: '100vw', height: 'calc(100vh - 56px)', position: 'relative' }}>
       <Viewer
+        ref={viewerRef}
         full
         timeline={false}
         animation={false}
@@ -102,6 +137,8 @@ export function MapPage() {
         baseLayerPicker={false}
         geocoder={false}
         sceneModePicker={false}
+        baseLayer={new ImageryLayer(osmImageryProvider)}
+        terrain={worldTerrain}
       >
         <CameraFlyTo destination={chuokuPosition} duration={0} />
 
