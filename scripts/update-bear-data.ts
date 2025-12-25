@@ -76,7 +76,9 @@ function convertCSVToGeoJSON(csvContent: string): GeoJSONCollection {
         return null;
       }
 
-      const [date, time, ward, location, latStr, lonStr, situation] = columns;
+      const [date, time, ward, location, latStr, lonStr, situation] = columns.map(
+        (col) => col.trim()
+      );
 
       const lat = parseFloat(latStr);
       const lon = parseFloat(lonStr);
@@ -146,10 +148,8 @@ async function downloadCSV(url: string): Promise<string> {
     throw new Error(`Download error: ${response.status}`);
   }
 
-  const buffer = await response.arrayBuffer();
-  // Shift-JISからUTF-8に変換
-  const decoder = new TextDecoder('shift-jis');
-  return decoder.decode(buffer);
+  // CSVはUTF-8で提供されている
+  return response.text();
 }
 
 // メイン処理
