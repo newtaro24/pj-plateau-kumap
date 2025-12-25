@@ -33,11 +33,19 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
     if (startPosition) {
       const cartographic = Cartographic.fromDegrees(startPosition.lon, startPosition.lat);
 
-      // 3D Tilesや地形から高さを取得
+      // 地形の高さを取得（globe.getHeightがメイン、sampleHeightは3D Tiles用）
       let groundHeight = 0;
+
+      // まず地形から高さを取得
+      const terrainHeight = scene.globe.getHeight(cartographic);
+      if (terrainHeight !== undefined && terrainHeight > 0) {
+        groundHeight = terrainHeight;
+      }
+
+      // 3D Tilesからも高さを取得（建物の上に立てるように）
       if (scene.sampleHeightSupported) {
         const sampledHeight = scene.sampleHeight(cartographic);
-        if (sampledHeight !== undefined && sampledHeight > 0) {
+        if (sampledHeight !== undefined && sampledHeight > groundHeight) {
           groundHeight = sampledHeight;
         }
       }
@@ -174,21 +182,32 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
         camera.moveRight(moveSpeed);
       }
 
-      // 高度を地面に合わせる（3D Tilesから取得 + 人間の目線 1.7m）
+      // 高度を地面に合わせる（地形 + 3D Tilesから取得 + 人間の目線 1.7m）
       const cartographic = Cartographic.fromCartesian(camera.position);
       const eyeHeight = 1.7;
 
       let groundHeight = 0;
+
+      // 地形から高さを取得
+      const terrainHeight = scene.globe.getHeight(cartographic);
+      if (terrainHeight !== undefined && terrainHeight > 0) {
+        groundHeight = terrainHeight;
+      }
+
+      // 3D Tilesからも高さを取得（より高い方を採用）
       if (scene.sampleHeightSupported) {
         const sampledHeight = scene.sampleHeight(cartographic);
-        if (sampledHeight !== undefined && sampledHeight > 0) {
+        if (sampledHeight !== undefined && sampledHeight > groundHeight) {
           groundHeight = sampledHeight;
         }
       }
 
       const targetHeight = groundHeight + eyeHeight;
-      if (Math.abs(cartographic.height - targetHeight) > 0.5) {
-        cartographic.height = targetHeight;
+      // 地面との差が大きい場合のみ補正（滑らかに）
+      const heightDiff = targetHeight - cartographic.height;
+      if (Math.abs(heightDiff) > 0.1) {
+        // 急激な変化を避けるため、徐々に補正
+        cartographic.height += heightDiff * 0.3;
         camera.position = Cartographic.toCartesian(cartographic);
       }
     };
