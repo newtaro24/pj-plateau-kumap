@@ -5,6 +5,21 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
+        "coordinates": [141.227386, 42.958919]
+      },
+      "properties": {
+        "date": "2025-04-03",
+        "time": "9:30",
+        "ward": "蜊怜玄",
+        "location": "蜊怜玄蟆城≡貉ｯ566逡ｪ蝨ｰ1莉倩ｿ�(蝗ｽ驕�230蜿ｷ邱壻ｸ�)",
+        "situation": "繝偵げ繝槭ｒ逶ｮ謦�\r",
+        "dangerLevel": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
         "coordinates": [141.19685, 42.968087]
       },
       "properties": {
