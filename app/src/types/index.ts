@@ -14,12 +14,6 @@ export interface BearSighting {
   };
 }
 
-export interface SafetyCell {
-  lon: number;
-  lat: number;
-  safety: number;
-}
-
 export interface MonthlyData {
   month: string;
   count: number;
