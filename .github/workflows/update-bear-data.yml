@@ -19,7 +19,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install script dependencies
         run: npm install
         working-directory: scripts
 
@@ -27,6 +30,9 @@ jobs:
         id: update
         run: npx tsx update-bear-data.ts
         working-directory: scripts
+
+      - name: Format JSON with Biome
+        run: npx biome format --write app/src/data/bear_sightings_2025.json
 
       - name: Check for changes
         id: check
