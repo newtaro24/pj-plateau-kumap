@@ -8,6 +8,11 @@ interface WalkModeProps {
   startPosition?: { lon: number; lat: number } | null;
 }
 
+// モバイル判定
+const isMobile = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
   const { viewer } = useCesium();
   const flagsRef = useRef({
@@ -21,6 +26,12 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
   const handlerRef = useRef<ScreenSpaceEventHandler | null>(null);
   const tickListenerRef = useRef<(() => void) | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // 仮想ジョイスティック用の状態
+  const [joystickActive, setJoystickActive] = useState(false);
+  const [joystickPos, setJoystickPos] = useState({ x: 0, y: 0 });
+  const joystickStartRef = useRef({ x: 0, y: 0 });
+  const [mobile] = useState(isMobile());
 
   useEffect(() => {
     if (!viewer || !enabled) return;
@@ -99,6 +110,51 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
       flagsRef.current.looking = false;
     }, ScreenSpaceEventType.LEFT_UP);
 
+    // タッチイベント（視点変更用 - モバイル対応）
+    let cleanupTouch: (() => void) | null = null;
+    if (mobile) {
+      let touchStartPos: { x: number; y: number } | null = null;
+
+      const handleTouchStart = (e: TouchEvent) => {
+        // 仮想ジョイスティック以外のタッチは視点変更に使う
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('joystick-area')) return;
+
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          touchStartPos = { x: touch.clientX, y: touch.clientY };
+          flagsRef.current.looking = true;
+          mouseRef.current.startX = touch.clientX;
+          mouseRef.current.startY = touch.clientY;
+          mouseRef.current.currentX = touch.clientX;
+          mouseRef.current.currentY = touch.clientY;
+        }
+      };
+
+      const handleTouchMove = (e: TouchEvent) => {
+        if (e.touches.length === 1 && touchStartPos) {
+          const touch = e.touches[0];
+          mouseRef.current.currentX = touch.clientX;
+          mouseRef.current.currentY = touch.clientY;
+        }
+      };
+
+      const handleTouchEnd = () => {
+        touchStartPos = null;
+        flagsRef.current.looking = false;
+      };
+
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: true });
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
+      canvas.addEventListener('touchend', handleTouchEnd);
+
+      cleanupTouch = () => {
+        canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove);
+        canvas.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+
     // キーボードイベント
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.code) {
@@ -155,6 +211,19 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
     const tickListener = () => {
       const flags = flagsRef.current;
       const mouse = mouseRef.current;
+
+      // 仮想ジョイスティックによる移動（モバイル用）
+      if (mobile && joystickActive) {
+        const threshold = 10; // ジョイスティックの遊び
+        if (joystickPos.y < -threshold) flags.moveForward = true;
+        else flags.moveForward = false;
+        if (joystickPos.y > threshold) flags.moveBackward = true;
+        else flags.moveBackward = false;
+        if (joystickPos.x < -threshold) flags.moveLeft = true;
+        else flags.moveLeft = false;
+        if (joystickPos.x > threshold) flags.moveRight = true;
+        else flags.moveRight = false;
+      }
 
       // マウスで見回し
       if (flags.looking) {
@@ -222,6 +291,10 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
 
+      if (cleanupTouch) {
+        cleanupTouch();
+      }
+
       if (handlerRef.current) {
         handlerRef.current.destroy();
         handlerRef.current = null;
@@ -241,44 +314,160 @@ export function WalkMode({ enabled, onExit, startPosition }: WalkModeProps) {
 
       setIsInitialized(false);
     };
-  }, [viewer, enabled, onExit, startPosition]);
+  }, [viewer, enabled, onExit, startPosition, mobile, joystickActive, joystickPos]);
 
   if (!enabled) return null;
 
+  // 仮想ジョイスティックのイベントハンドラー
+  const handleJoystickStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    joystickStartRef.current = { x: centerX, y: centerY };
+    setJoystickActive(true);
+    setJoystickPos({ x: touch.clientX - centerX, y: touch.clientY - centerY });
+  };
+
+  const handleJoystickMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!joystickActive) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - joystickStartRef.current.x;
+    const deltaY = touch.clientY - joystickStartRef.current.y;
+    // 最大移動距離を制限
+    const maxDistance = 50;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    if (distance > maxDistance) {
+      const ratio = maxDistance / distance;
+      setJoystickPos({ x: deltaX * ratio, y: deltaY * ratio });
+    } else {
+      setJoystickPos({ x: deltaX, y: deltaY });
+    }
+  };
+
+  const handleJoystickEnd = () => {
+    setJoystickActive(false);
+    setJoystickPos({ x: 0, y: 0 });
+    // 移動フラグをリセット
+    flagsRef.current.moveForward = false;
+    flagsRef.current.moveBackward = false;
+    flagsRef.current.moveLeft = false;
+    flagsRef.current.moveRight = false;
+  };
+
   return (
-    <div
-      style={{
-        position: 'absolute',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        color: 'white',
-        padding: '16px 24px',
-        borderRadius: '12px',
-        fontSize: '14px',
-        zIndex: 1000,
-        textAlign: 'center',
-        minWidth: '300px',
-      }}
-    >
-      <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '16px' }}>
-        🚶 ウォークモード {isInitialized ? '(有効)' : '(初期化中...)'}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '12px' }}>
-        <div>
-          <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>移動</div>
-          <div style={{ fontFamily: 'monospace', fontSize: '16px' }}>
-            <span style={{ opacity: 0.5 }}>　</span>W<span style={{ opacity: 0.5 }}>　</span>
-            <br />A S D
+    <>
+      {/* 仮想ジョイスティック（モバイル用） */}
+      {mobile && (
+        <div
+          className="joystick-area"
+          onTouchStart={handleJoystickStart}
+          onTouchMove={handleJoystickMove}
+          onTouchEnd={handleJoystickEnd}
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            left: '20px',
+            width: '120px',
+            height: '120px',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '50%',
+            border: '3px solid rgba(255, 255, 255, 0.3)',
+            zIndex: 1001,
+            touchAction: 'none',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              width: '50px',
+              height: '50px',
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              borderRadius: '50%',
+              transform: `translate(calc(-50% + ${joystickPos.x}px), calc(-50% + ${joystickPos.y}px))`,
+              transition: joystickActive ? 'none' : 'transform 0.2s',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      )}
+
+      {/* 終了ボタン（モバイル用） */}
+      {mobile && (
+        <button
+          type="button"
+          onClick={onExit}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            width: '60px',
+            height: '60px',
+            backgroundColor: 'rgba(255, 0, 0, 0.8)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            fontSize: '24px',
+            cursor: 'pointer',
+            zIndex: 1001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+          }}
+        >
+          ✕
+        </button>
+      )}
+
+      {/* 操作説明パネル */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: mobile ? '160px' : '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          color: 'white',
+          padding: mobile ? '12px 16px' : '16px 24px',
+          borderRadius: '12px',
+          fontSize: mobile ? '12px' : '14px',
+          zIndex: 1000,
+          textAlign: 'center',
+          minWidth: mobile ? '200px' : '300px',
+        }}
+      >
+        <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: mobile ? '14px' : '16px' }}>
+          🚶 ウォークモード {isInitialized ? '(有効)' : '(初期化中...)'}
+        </div>
+        {!mobile && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '12px' }}>
+              <div>
+                <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>移動</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '16px' }}>
+                  <span style={{ opacity: 0.5 }}>　</span>W<span style={{ opacity: 0.5 }}>　</span>
+                  <br />A S D
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>見回し</div>
+                <div>マウスドラッグ</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '12px', color: '#888' }}>ESC キーで終了</div>
+          </>
+        )}
+        {mobile && (
+          <div style={{ fontSize: '11px', color: '#aaa' }}>
+            左: ジョイスティックで移動 / 右: スワイプで視点変更
           </div>
-        </div>
-        <div>
-          <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>見回し</div>
-          <div>マウスドラッグ</div>
-        </div>
+        )}
       </div>
-      <div style={{ fontSize: '12px', color: '#888' }}>ESC キーで終了</div>
-    </div>
+    </>
   );
 }

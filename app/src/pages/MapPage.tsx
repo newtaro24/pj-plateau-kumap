@@ -73,6 +73,11 @@ export function MapPage() {
   // 直近の出没データ（上位10件）
   const recentSightings = bearSightings.slice(0, 10);
 
+  // モバイル判定
+  const [isMobileDevice] = useState(() => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  });
+
   return (
     <div style={{ width: '100vw', height: 'calc(100vh - 56px)', position: 'relative' }}>
       <Viewer
@@ -159,11 +164,12 @@ export function MapPage() {
           left: '10px',
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           color: 'white',
-          padding: '12px 16px',
+          padding: isMobileDevice ? '10px 12px' : '12px 16px',
           borderRadius: '8px',
-          fontSize: '14px',
+          fontSize: isMobileDevice ? '12px' : '14px',
           zIndex: 1000,
-          minWidth: '200px',
+          minWidth: isMobileDevice ? '160px' : '200px',
+          maxWidth: isMobileDevice ? 'calc(100vw - 20px)' : 'none',
         }}
       >
         {/* ウォークモードセクション */}
@@ -174,21 +180,28 @@ export function MapPage() {
             onClick={() => setShowSightingSelector(!showSightingSelector)}
             style={{
               width: '100%',
-              padding: '10px',
+              padding: isMobileDevice ? '12px' : '10px',
               backgroundColor: '#2196F3',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer',
-              fontSize: '13px',
+              fontSize: isMobileDevice ? '14px' : '13px',
               fontWeight: 'bold',
+              touchAction: 'manipulation',
             }}
           >
             出没地点を歩く
           </button>
 
           {showSightingSelector && (
-            <div style={{ marginTop: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+            <div
+              style={{
+                marginTop: '8px',
+                maxHeight: isMobileDevice ? '40vh' : '200px',
+                overflowY: 'auto',
+              }}
+            >
               {recentSightings.map((sighting) => {
                 const { coordinates } = sighting.geometry;
                 const { date, ward, location, dangerLevel } = sighting.properties;
@@ -205,26 +218,36 @@ export function MapPage() {
                     onClick={() => handleStartWalkMode(coordinates[0], coordinates[1])}
                     style={{
                       width: '100%',
-                      padding: '8px',
+                      padding: isMobileDevice ? '10px' : '8px',
                       marginBottom: '4px',
                       backgroundColor: '#333',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
-                      fontSize: '11px',
+                      fontSize: isMobileDevice ? '12px' : '11px',
                       textAlign: 'left',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
+                      touchAction: 'manipulation',
                     }}
                   >
-                    <span style={{ color: dangerColor, fontSize: '16px' }}>●</span>
+                    <span style={{ color: dangerColor, fontSize: isMobileDevice ? '18px' : '16px' }}>
+                      ●
+                    </span>
                     <span>
                       <div>
                         {ward} - {location}
                       </div>
-                      <div style={{ color: '#888', fontSize: '10px' }}>{date}</div>
+                      <div
+                        style={{
+                          color: '#888',
+                          fontSize: isMobileDevice ? '10px' : '10px',
+                        }}
+                      >
+                        {date}
+                      </div>
                     </span>
                   </button>
                 );
