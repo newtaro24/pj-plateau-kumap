@@ -25,6 +25,13 @@ import {
 
 const ACCENT = '#a1785b';
 
+// 状況タイプ別の配色（茶色ベース、ダーク背景に映える）
+const SITUATION_COLORS: Record<string, string> = {
+  ヒグマ確認: '#a1785b', // 茶色（メインテーマ）
+  痕跡: '#7c9473', // 緑系（自然の痕跡）
+  その他: '#8b7da8', // 紫グレー
+};
+
 export function LandingPage() {
   const navigate = useNavigate();
   const { sightings } = useBearStats();
@@ -426,7 +433,7 @@ export function LandingPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 11, fill: '#888' }}
-                  width={50}
+                  width={80}
                 />
                 <Tooltip
                   contentStyle={{
@@ -438,8 +445,8 @@ export function LandingPage() {
                   labelStyle={{ color: '#888' }}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} name="件数">
-                  {bySituation.map((entry, index) => (
-                    <Cell key={entry.category} fill={index === 0 ? ACCENT : '#333'} />
+                  {bySituation.map((entry) => (
+                    <Cell key={entry.category} fill={SITUATION_COLORS[entry.category] || '#333'} />
                   ))}
                 </Bar>
               </BarChart>
