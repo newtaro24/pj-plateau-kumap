@@ -103,22 +103,6 @@ export function MapPage() {
             const sighting = bearSightings[index];
             if (sighting) {
               setSelectedSighting(sighting);
-              // マーカーの位置にズーム（現在のカメラ高度を維持）
-              const currentHeight = cesiumViewer.camera.positionCartographic.height;
-              const targetHeight = Math.min(currentHeight, 5000); // 最大5kmまでズーム
-              cesiumViewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(
-                  sighting.geometry.coordinates[0],
-                  sighting.geometry.coordinates[1],
-                  targetHeight,
-                ),
-                orientation: {
-                  heading: cesiumViewer.camera.heading,
-                  pitch: cesiumViewer.camera.pitch,
-                  roll: 0,
-                },
-                duration: 0.5,
-              });
               return;
             }
           }
@@ -162,11 +146,12 @@ export function MapPage() {
         baseLayer={lightMapLayer}
         terrain={worldTerrain}
       >
-        {/* 初期カメラ位置を設定 */}
+        {/* 初期カメラ位置を設定（一度だけ実行） */}
         <CameraFlyTo
           destination={INITIAL_POSITION}
           orientation={INITIAL_ORIENTATION}
           duration={0}
+          once={true}
         />
 
         {/* PLATEAU 3D都市モデル（札幌市中央区） */}
