@@ -88,10 +88,18 @@ viewer.scene.globe.depthTestAgainstTerrain = true;
 
 ---
 
+## スラッシュコマンド
+
+- `/commit` - Gitコミット作成
+- `/memorize` - 重要な情報を記録
+
+---
+
 ## 参照ドキュメント
 
 - `docs/spec.md` - 機能仕様
 - `docs/data-sources.md` - データソースとライセンス
+- `docs/plateau-tutorials.md` - PLATEAUチュートリアル（CesiumJS、React統合、防災事例）
 
 ---
 
@@ -108,6 +116,7 @@ cd app && npm run dev
 ---
 
 **更新履歴**:
+- 2025-12-28: PLATEAUチュートリアル追加（docs/plateau-tutorials.md）
 - 2025-12-25: ヒートマップ・避難場所スコアを削除（シンプル化）
 - 2025-12-23: Phase 4完了（避難場所スコア実装、OSM建物データ統合）
 - 2025-12-22: Phase 3完了（逃げやすさヒートマップ実装）

@@ -1,7 +1,15 @@
 import { useMemo } from 'react';
 import bearSightingsData from '../data/bear_sightings_2025.json';
 import type { BearSighting } from '../types';
-import { calculateSummary, countByMonth, countByWard } from '../utils/statsCalculator';
+import {
+  calculateSummary,
+  countByDangerLevel,
+  countByHour,
+  countByMonth,
+  countBySituation,
+  countByWard,
+  countByWeekday,
+} from '../utils/statsCalculator';
 
 export function useBearStats() {
   const sightings = bearSightingsData.features as BearSighting[];
@@ -11,6 +19,10 @@ export function useBearStats() {
       sightings,
       monthly: countByMonth(sightings),
       byWard: countByWard(sightings),
+      byHour: countByHour(sightings),
+      byDangerLevel: countByDangerLevel(sightings),
+      bySituation: countBySituation(sightings),
+      byWeekday: countByWeekday(sightings),
       summary: calculateSummary(sightings),
     }),
     [sightings],
