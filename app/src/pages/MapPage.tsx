@@ -349,6 +349,11 @@ export function MapPage() {
         viewerRef={viewerRef}
         lightingEnabled={lightingEnabled}
         onToggleLighting={() => setLightingEnabled(!lightingEnabled)}
+        currentDateTime={
+          selectedSighting
+            ? { date: selectedSighting.properties.date, time: selectedSighting.properties.time }
+            : null
+        }
       />
 
       {/* 種別フィルター */}

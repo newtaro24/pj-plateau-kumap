@@ -8,6 +8,7 @@ interface MapControlsProps {
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
   lightingEnabled?: boolean;
   onToggleLighting?: () => void;
+  currentDateTime?: { date: string; time: string } | null;
 }
 
 const controlsContainerStyle: React.CSSProperties = {
@@ -47,7 +48,12 @@ const buttonActiveStyle: React.CSSProperties = {
   backgroundColor: '#a1785b',
 };
 
-export function MapControls({ viewerRef, lightingEnabled, onToggleLighting }: MapControlsProps) {
+export function MapControls({
+  viewerRef,
+  lightingEnabled,
+  onToggleLighting,
+  currentDateTime,
+}: MapControlsProps) {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const getViewer = () => viewerRef.current?.cesiumElement ?? null;
@@ -172,6 +178,23 @@ export function MapControls({ viewerRef, lightingEnabled, onToggleLighting }: Ma
           >
             ☀
           </button>
+          {lightingEnabled && currentDateTime && (
+            <div
+              style={{
+                backgroundColor: 'rgba(48, 48, 48, 0.95)',
+                borderRadius: '6px',
+                padding: '6px 8px',
+                color: '#fff',
+                fontSize: '11px',
+                textAlign: 'center',
+                lineHeight: 1.3,
+                marginTop: '4px',
+              }}
+            >
+              <div style={{ opacity: 0.7 }}>{currentDateTime.date}</div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{currentDateTime.time}</div>
+            </div>
+          )}
         </>
       )}
     </div>
