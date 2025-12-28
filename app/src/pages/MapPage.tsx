@@ -47,7 +47,8 @@ const worldTerrain = Terrain.fromWorldTerrain();
 const bearSightings = bearSightingsData.features as BearSighting[];
 
 // 札幌市の初期視点（札幌駅付近を中心に俯瞰）
-const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 42.85, 50000);
+// pitch -45度で札幌市中心部が画面中央に来るよう南にオフセット
+const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 42.65, 50000);
 const INITIAL_ORIENTATION = {
   heading: 0,
   pitch: CesiumMath.toRadians(-45), // 斜めから見下ろす
@@ -112,7 +113,7 @@ export function MapPage() {
         // カメラ高度と角度から、マーカーが画面中央に来るようオフセット計算
         // pitch -30度でカメラを南にオフセット
         const cameraHeight = 800; // カメラ高度
-        const latOffset = 0.005; // オフセット（緯度方向）
+        const latOffset = 0.012; // オフセット（緯度方向）
         cesiumViewer.camera.flyTo({
           destination: Cartesian3.fromDegrees(
             targetCoords.lng,
@@ -157,7 +158,7 @@ export function MapPage() {
               // マーカーにカメラをフォーカス
               const [lng, lat] = sighting.geometry.coordinates;
               const cameraHeight = 800;
-              const latOffset = 0.005;
+              const latOffset = 0.012;
               cesiumViewer.camera.flyTo({
                 destination: Cartesian3.fromDegrees(lng, lat - latOffset, cameraHeight),
                 orientation: {
