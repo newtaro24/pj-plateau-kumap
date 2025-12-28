@@ -6,7 +6,7 @@ const headerStyle: React.CSSProperties = {
   left: 0,
   right: 0,
   height: '56px',
-  backgroundColor: '#1a1a1a',
+  backgroundColor: '#1f1f23',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -35,12 +35,14 @@ const logoStyle: React.CSSProperties = {
 const logoIconStyle: React.CSSProperties = {
   width: '32px',
   height: '32px',
-  backgroundColor: '#00bcd4',
+  backgroundColor: '#a1785b',
   borderRadius: '8px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: '18px',
+  fontSize: '16px',
+  fontWeight: 700,
+  color: '#fff',
 };
 
 const navStyle: React.CSSProperties = {
@@ -68,8 +70,8 @@ const badgeStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: '6px',
   padding: '6px 12px',
-  backgroundColor: 'rgba(0, 188, 212, 0.15)',
-  color: '#00bcd4',
+  backgroundColor: 'rgba(161, 120, 91, 0.15)',
+  color: '#a1785b',
   borderRadius: '6px',
   fontSize: '12px',
   fontWeight: 500,
@@ -80,7 +82,7 @@ export function Header() {
     <header style={headerStyle}>
       <div style={logoContainerStyle}>
         <NavLink to="/" style={logoStyle}>
-          <div style={logoIconStyle}>&#x1F43B;</div>
+          <div style={logoIconStyle}>K</div>
           <span>札幌ヒグママップ</span>
         </NavLink>
       </div>

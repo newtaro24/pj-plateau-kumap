@@ -30,12 +30,13 @@ import { SITUATION_CATEGORIES } from '../utils/statsCalculator';
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 Ion.defaultAccessToken = cesiumToken || '';
 
-// PLATEAU VIEW 白地図タイル（シンプルで見やすい）
-const lightMapProvider = new UrlTemplateImageryProvider({
-  url: 'https://api.plateauview.mlit.go.jp/tiles/light-map/{z}/{x}/{y}.png',
+// 国土地理院 淡色地図タイル（安定・公式）
+const gsiPaleProvider = new UrlTemplateImageryProvider({
+  url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
   maximumLevel: 18,
+  credit: '国土地理院',
 });
-const lightMapLayer = new ImageryLayer(lightMapProvider);
+const gsiPaleLayer = new ImageryLayer(gsiPaleProvider);
 
 // 白地図スタイルの背景色（タイルが読み込まれていない領域用）
 const LIGHT_BASE_COLOR = Color.fromCssColorString('#f5f5f5');
@@ -208,7 +209,7 @@ export function MapPage() {
         sceneModePicker={false}
         infoBox={false}
         selectionIndicator={false}
-        baseLayer={lightMapLayer}
+        baseLayer={gsiPaleLayer}
         terrain={worldTerrain}
       >
         {/* 初期カメラ位置を設定（一度だけ実行） */}
@@ -260,7 +261,7 @@ export function MapPage() {
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
               point={{
                 pixelSize: isSelected ? 16 : 10,
-                color: Color.fromCssColorString('#ef4444'),
+                color: Color.fromCssColorString('#a1785b'),
                 outlineColor: Color.WHITE,
                 outlineWidth: isSelected ? 3 : 2,
                 heightReference: HeightReference.CLAMP_TO_GROUND,
@@ -343,7 +344,7 @@ export function MapPage() {
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
-                  backgroundColor: isActive ? '#ef4444' : 'rgba(255,255,255,0.15)',
+                  backgroundColor: isActive ? '#a1785b' : 'rgba(255,255,255,0.15)',
                   color: '#fff',
                   transition: 'background-color 0.15s',
                 }}

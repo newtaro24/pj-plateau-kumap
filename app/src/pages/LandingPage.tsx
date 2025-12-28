@@ -23,7 +23,7 @@ import {
   formatMonthLabel,
 } from '../utils/statsCalculator';
 
-const ACCENT = '#e53935';
+const ACCENT = '#a1785b';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export function LandingPage() {
   }));
 
   return (
-    <div style={{ background: '#0a0a0a', color: '#fff', minHeight: 'calc(100vh - 56px)' }}>
+    <div style={{ background: '#18181b', color: '#fff', minHeight: 'calc(100vh - 56px)' }}>
       {/* Hero */}
       <section
         style={{
@@ -126,7 +126,7 @@ export function LandingPage() {
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '1px',
-            background: '#222',
+            background: '#27272a',
             borderRadius: '8px',
             overflow: 'hidden',
           }}
@@ -139,7 +139,7 @@ export function LandingPage() {
           ].map((stat) => (
             <div
               key={stat.label}
-              style={{ background: '#111', padding: '24px 16px', textAlign: 'center' }}
+              style={{ background: '#1f1f23', padding: '24px 16px', textAlign: 'center' }}
             >
               <div
                 style={{
@@ -167,7 +167,7 @@ export function LandingPage() {
 
       {/* Filter */}
       <section style={{ padding: '0 24px 40px', maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ background: '#111', borderRadius: '8px', padding: '20px' }}>
+        <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '20px' }}>
           <div
             style={{
               display: 'flex',
@@ -265,7 +265,7 @@ export function LandingPage() {
       <section style={{ padding: '0 24px 60px', maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           {/* Monthly Chart */}
-          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+          <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '24px' }}>
             <h3
               style={{
                 fontSize: '12px',
@@ -293,7 +293,7 @@ export function LandingPage() {
                 <YAxis hide />
                 <Tooltip
                   contentStyle={{
-                    background: '#1a1a1a',
+                    background: '#27272a',
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
@@ -313,7 +313,7 @@ export function LandingPage() {
           </div>
 
           {/* Ward Chart */}
-          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+          <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '24px' }}>
             <h3
               style={{
                 fontSize: '12px',
@@ -337,7 +337,7 @@ export function LandingPage() {
                 />
                 <Tooltip
                   contentStyle={{
-                    background: '#1a1a1a',
+                    background: '#27272a',
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
@@ -364,7 +364,7 @@ export function LandingPage() {
           }}
         >
           {/* Hourly Chart */}
-          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+          <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '24px' }}>
             <h3
               style={{
                 fontSize: '12px',
@@ -386,7 +386,7 @@ export function LandingPage() {
                 <YAxis hide />
                 <Tooltip
                   contentStyle={{
-                    background: '#1a1a1a',
+                    background: '#27272a',
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
@@ -406,7 +406,7 @@ export function LandingPage() {
           </div>
 
           {/* Situation Chart */}
-          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+          <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '24px' }}>
             <h3
               style={{
                 fontSize: '12px',
@@ -430,7 +430,7 @@ export function LandingPage() {
                 />
                 <Tooltip
                   contentStyle={{
-                    background: '#1a1a1a',
+                    background: '#27272a',
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
@@ -447,7 +447,7 @@ export function LandingPage() {
           </div>
 
           {/* Weekday Chart */}
-          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+          <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '24px' }}>
             <h3
               style={{
                 fontSize: '12px',
@@ -469,7 +469,7 @@ export function LandingPage() {
                 <YAxis hide />
                 <Tooltip
                   contentStyle={{
-                    background: '#1a1a1a',
+                    background: '#27272a',
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
@@ -502,7 +502,7 @@ export function LandingPage() {
         >
           直近の出没
         </h3>
-        <div style={{ background: '#111', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: '#1f1f23', borderRadius: '8px', overflow: 'hidden' }}>
           {recentSightings.map((sighting, index) => {
             const { date, time, ward, location } = sighting.properties;
             const [lng, lat] = sighting.geometry.coordinates;
@@ -524,7 +524,7 @@ export function LandingPage() {
                   textAlign: 'left',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a1a1a';
+                  e.currentTarget.style.backgroundColor = '#27272a';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
