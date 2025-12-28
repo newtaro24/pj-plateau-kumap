@@ -6,24 +6,24 @@
 4. `gh pr create` でプルリクエストを作成
 
 プルリクエストの形式:
-- タイトル: 短い英語（命令形、50文字以内）
-- 本文:
+- タイトル: 短い日本語（命令形、50文字以内）
+- 本文: 日本語
   - ## Summary: 変更内容を1-3行で説明
   - ## Changes: 主な変更点を箇条書き
   - ## Test: テスト方法や確認事項
 
 例:
 ```
-gh pr create --title "Add bear sighting heatmap" --body "$(cat <<'EOF'
+gh pr create --title "ヒグマ出没ヒートマップを追加" --body "$(cat <<'EOF'
 ## Summary
-Add a heatmap visualization for bear sighting density.
+ヒグマ出没データの密度をヒートマップで可視化する機能を追加。
 
 ## Changes
-- Add heatmap layer using Cesium primitives
-- Load and process sighting data from JSON
+- Cesiumプリミティブを使用したヒートマップレイヤーを追加
+- JSONから出没データを読み込み・処理
 
 ## Test
-- Run `npm run dev` and verify heatmap displays correctly
+- `npm run dev` でヒートマップが正しく表示されることを確認
 EOF
 )"
 ```
