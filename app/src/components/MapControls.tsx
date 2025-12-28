@@ -1,5 +1,5 @@
 import type { Viewer as CesiumViewer } from 'cesium';
-import { Cartesian2, Cartesian3, Math as CesiumMath, HeadingPitchRange } from 'cesium';
+import { Cartesian3, Math as CesiumMath } from 'cesium';
 import type { RefObject } from 'react';
 import { useState } from 'react';
 import type { CesiumComponentRef } from 'resium';
@@ -79,50 +79,25 @@ export function MapControls({ viewerRef }: MapControlsProps) {
     });
   };
 
-  // 視点の中心を軸にカメラを回転させる
-  const rotateAroundCenter = (angleDegrees: number) => {
+  // カメラの向きだけを変更（位置は固定）
+  const handleRotate = (angleDegrees: number) => {
     const viewer = getViewer();
     if (!viewer) return;
 
     const camera = viewer.camera;
-    const scene = viewer.scene;
-
-    // 画面中央の地点を取得
-    const canvas = scene.canvas;
-    const center = new Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-    const ray = camera.getPickRay(center);
-    if (!ray) return;
-
-    // 地表との交点を取得
-    const intersection = scene.globe.pick(ray, scene);
-    if (!intersection) {
-      // 交点が見つからない場合は従来の回転
-      camera.flyTo({
-        destination: camera.positionWC,
-        orientation: {
-          heading: camera.heading + CesiumMath.toRadians(angleDegrees),
-          pitch: camera.pitch,
-          roll: camera.roll,
-        },
-        duration: 0.5,
-      });
-      return;
-    }
-
-    // 現在のカメラ位置から中心までの距離を計算
-    const distance = Cartesian3.distance(camera.positionWC, intersection);
     const newHeading = camera.heading + CesiumMath.toRadians(angleDegrees);
 
-    // 中心を軸に回転した新しいカメラ位置を計算
-    camera.flyTo({
-      destination: intersection,
-      orientation: new HeadingPitchRange(newHeading, camera.pitch, distance),
-      duration: 0.5,
+    camera.setView({
+      orientation: {
+        heading: newHeading,
+        pitch: camera.pitch,
+        roll: camera.roll,
+      },
     });
   };
 
-  const handleRotateLeft = () => rotateAroundCenter(-15);
-  const handleRotateRight = () => rotateAroundCenter(15);
+  const handleRotateLeft = () => handleRotate(-10);
+  const handleRotateRight = () => handleRotate(10);
 
   const getButtonStyle = (buttonName: string) =>
     hoveredButton === buttonName ? buttonHoverStyle : buttonStyle;
