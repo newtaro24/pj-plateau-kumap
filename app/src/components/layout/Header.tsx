@@ -24,25 +24,11 @@ const logoContainerStyle: React.CSSProperties = {
 const logoStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
   color: '#fff',
   textDecoration: 'none',
   fontSize: '15px',
   fontWeight: 600,
   letterSpacing: '-0.01em',
-};
-
-const logoIconStyle: React.CSSProperties = {
-  width: '32px',
-  height: '32px',
-  backgroundColor: '#a1785b',
-  borderRadius: '8px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '16px',
-  fontWeight: 700,
-  color: '#fff',
 };
 
 const navStyle: React.CSSProperties = {
@@ -82,8 +68,7 @@ export function Header() {
     <header style={headerStyle}>
       <div style={logoContainerStyle}>
         <NavLink to="/" style={logoStyle}>
-          <div style={logoIconStyle}>K</div>
-          <span>札幌ヒグママップ</span>
+          札幌ヒグママップ
         </NavLink>
       </div>
 

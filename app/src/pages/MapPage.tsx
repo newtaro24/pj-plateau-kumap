@@ -30,13 +30,13 @@ import { SITUATION_CATEGORIES } from '../utils/statsCalculator';
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 Ion.defaultAccessToken = cesiumToken || '';
 
-// 国土地理院 淡色地図タイル（安定・公式）
-const gsiPaleProvider = new UrlTemplateImageryProvider({
-  url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
-  maximumLevel: 18,
-  credit: '国土地理院',
+// CartoDB Positron（淡色モノトーン）
+const cartoPositronProvider = new UrlTemplateImageryProvider({
+  url: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+  maximumLevel: 19,
+  credit: 'CartoDB',
 });
-const gsiPaleLayer = new ImageryLayer(gsiPaleProvider);
+const cartoPositronLayer = new ImageryLayer(cartoPositronProvider);
 
 // 白地図スタイルの背景色（タイルが読み込まれていない領域用）
 const LIGHT_BASE_COLOR = Color.fromCssColorString('#f5f5f5');
@@ -209,7 +209,7 @@ export function MapPage() {
         sceneModePicker={false}
         infoBox={false}
         selectionIndicator={false}
-        baseLayer={gsiPaleLayer}
+        baseLayer={cartoPositronLayer}
         terrain={worldTerrain}
       >
         {/* 初期カメラ位置を設定（一度だけ実行） */}
