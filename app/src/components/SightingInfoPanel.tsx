@@ -57,10 +57,10 @@ const titleStyle: React.CSSProperties = {
 const closeButtonStyle: React.CSSProperties = {
   width: '28px',
   height: '28px',
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  border: 'none',
+  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
   borderRadius: '6px',
-  color: '#999',
+  color: '#ccc',
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
@@ -102,8 +102,7 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
     <div style={panelStyle}>
       <div style={headerStyle}>
         <div style={titleStyle}>
-          <span style={{ fontSize: '20px' }}>&#x1F43B;</span>
-          <span>ヒグマ出没情報</span>
+          <span>出没情報</span>
         </div>
         <button
           type="button"
