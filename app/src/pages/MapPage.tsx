@@ -47,11 +47,10 @@ const worldTerrain = Terrain.fromWorldTerrain();
 const bearSightings = bearSightingsData.features as BearSighting[];
 
 // 札幌市の初期視点（札幌駅付近を中心に俯瞰）
-// pitch -70度で視線が札幌駅(43.065)に届くよう、カメラを南にオフセット
-const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 42.9, 50000);
+const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 42.85, 50000);
 const INITIAL_ORIENTATION = {
   heading: 0,
-  pitch: CesiumMath.toRadians(-70), // より真上からの視点
+  pitch: CesiumMath.toRadians(-45), // 斜めから見下ろす
   roll: 0,
 };
 
@@ -111,9 +110,9 @@ export function MapPage() {
       if (targetCoords && !initialFlyDone.current) {
         initialFlyDone.current = true;
         // カメラ高度と角度から、マーカーが画面中央に来るようオフセット計算
-        // pitch -45度でカメラを南にオフセット
-        const cameraHeight = 1100; // カメラ高度（約1.1km）
-        const latOffset = 0.008; // 約900mのオフセット（緯度方向）
+        // pitch -30度でカメラを南にオフセット
+        const cameraHeight = 800; // カメラ高度
+        const latOffset = 0.005; // オフセット（緯度方向）
         cesiumViewer.camera.flyTo({
           destination: Cartesian3.fromDegrees(
             targetCoords.lng,
@@ -122,7 +121,7 @@ export function MapPage() {
           ),
           orientation: {
             heading: 0,
-            pitch: CesiumMath.toRadians(-45),
+            pitch: CesiumMath.toRadians(-30),
             roll: 0,
           },
           duration: 1.5,
@@ -157,13 +156,13 @@ export function MapPage() {
               setSelectedSighting(sighting);
               // マーカーにカメラをフォーカス
               const [lng, lat] = sighting.geometry.coordinates;
-              const cameraHeight = 1100;
-              const latOffset = 0.008;
+              const cameraHeight = 800;
+              const latOffset = 0.005;
               cesiumViewer.camera.flyTo({
                 destination: Cartesian3.fromDegrees(lng, lat - latOffset, cameraHeight),
                 orientation: {
                   heading: 0,
-                  pitch: CesiumMath.toRadians(-45),
+                  pitch: CesiumMath.toRadians(-30),
                   roll: 0,
                 },
                 duration: 1.0,
