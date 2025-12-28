@@ -79,15 +79,18 @@ export function MapControls({ viewerRef }: MapControlsProps) {
     });
   };
 
-  const handleRotateLeft = () => {
+  // カメラの向きだけを変更（位置は固定、アニメーション付き）
+  const handleRotate = (angleDegrees: number) => {
     const viewer = getViewer();
     if (!viewer) return;
+
     const camera = viewer.camera;
-    const currentHeading = camera.heading;
+    const newHeading = camera.heading + CesiumMath.toRadians(angleDegrees);
+
     camera.flyTo({
       destination: camera.positionWC,
       orientation: {
-        heading: currentHeading - CesiumMath.toRadians(45),
+        heading: newHeading,
         pitch: camera.pitch,
         roll: camera.roll,
       },
@@ -95,21 +98,8 @@ export function MapControls({ viewerRef }: MapControlsProps) {
     });
   };
 
-  const handleRotateRight = () => {
-    const viewer = getViewer();
-    if (!viewer) return;
-    const camera = viewer.camera;
-    const currentHeading = camera.heading;
-    camera.flyTo({
-      destination: camera.positionWC,
-      orientation: {
-        heading: currentHeading + CesiumMath.toRadians(45),
-        pitch: camera.pitch,
-        roll: camera.roll,
-      },
-      duration: 0.3,
-    });
-  };
+  const handleRotateLeft = () => handleRotate(-10);
+  const handleRotateRight = () => handleRotate(10);
 
   const getButtonStyle = (buttonName: string) =>
     hoveredButton === buttonName ? buttonHoverStyle : buttonStyle;

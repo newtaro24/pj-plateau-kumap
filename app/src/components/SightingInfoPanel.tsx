@@ -57,15 +57,17 @@ const titleStyle: React.CSSProperties = {
 const closeButtonStyle: React.CSSProperties = {
   width: '28px',
   height: '28px',
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  border: 'none',
+  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
   borderRadius: '6px',
-  color: '#999',
+  color: '#fff',
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  transition: 'background-color 0.15s, color 0.15s',
+  transition: 'background-color 0.15s',
+  fontSize: '18px',
+  lineHeight: 1,
 };
 
 const contentStyle: React.CSSProperties = {
@@ -102,34 +104,21 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
     <div style={panelStyle}>
       <div style={headerStyle}>
         <div style={titleStyle}>
-          <span style={{ fontSize: '20px' }}>&#x1F43B;</span>
-          <span>ヒグマ出没情報</span>
+          <span>出没情報</span>
         </div>
         <button
           type="button"
           style={closeButtonStyle}
           onClick={onClose}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.color = '#fff';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.color = '#999';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
           }}
+          aria-label="閉じる"
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden="true"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          ×
         </button>
       </div>
       <div style={contentStyle}>

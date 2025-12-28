@@ -23,8 +23,7 @@ export function DataSourceCredit({
         zIndex: 1000,
       }}
     >
-      <div>データ提供: 札幌市環境局</div>
-      <div style={{ fontSize: '10px', marginTop: '2px' }}>
+      <div style={{ fontSize: '10px' }}>
         <a
           href={dataSourceUrl}
           target="_blank"
@@ -34,6 +33,17 @@ export function DataSourceCredit({
           {dataSourceName}
         </a>{' '}
         ({license})
+      </div>
+      <div style={{ fontSize: '10px', marginTop: '2px' }}>
+        <a
+          href="https://www.mlit.go.jp/plateau/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#88ccff', textDecoration: 'none' }}
+        >
+          PLATEAU
+        </a>{' '}
+        (国土交通省)
       </div>
     </div>
   );
