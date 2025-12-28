@@ -30,13 +30,12 @@ import { SITUATION_CATEGORIES } from '../utils/statsCalculator';
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 Ion.defaultAccessToken = cesiumToken || '';
 
-// CartoDB Positron（淡色モノトーン）
-const cartoPositronProvider = new UrlTemplateImageryProvider({
-  url: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-  maximumLevel: 19,
-  credit: 'CartoDB',
+// PLATEAU VIEW 白地図タイル（シンプルで見やすい）
+const lightMapProvider = new UrlTemplateImageryProvider({
+  url: 'https://api.plateauview.mlit.go.jp/tiles/light-map/{z}/{x}/{y}.png',
+  maximumLevel: 18,
 });
-const cartoPositronLayer = new ImageryLayer(cartoPositronProvider);
+const lightMapLayer = new ImageryLayer(lightMapProvider);
 
 // 白地図スタイルの背景色（タイルが読み込まれていない領域用）
 const LIGHT_BASE_COLOR = Color.fromCssColorString('#f5f5f5');
@@ -209,7 +208,7 @@ export function MapPage() {
         sceneModePicker={false}
         infoBox={false}
         selectionIndicator={false}
-        baseLayer={cartoPositronLayer}
+        baseLayer={lightMapLayer}
         terrain={worldTerrain}
       >
         {/* 初期カメラ位置を設定（一度だけ実行） */}
