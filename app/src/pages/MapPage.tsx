@@ -22,7 +22,9 @@ import { DataSourceCredit } from '../components/DataSourceCredit';
 import { MapControls } from '../components/MapControls';
 import { SightingInfoPanel } from '../components/SightingInfoPanel';
 import bearSightingsData from '../data/bear_sightings_2025.json';
+import { useBearFilter } from '../hooks/useBearFilter';
 import type { BearSighting } from '../types';
+import { SITUATION_CATEGORIES } from '../utils/statsCalculator';
 
 // Cesium ionのアクセストークンを設定
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
@@ -60,6 +62,10 @@ export function MapPage() {
   const showHeatmap = false; // ヒートマップは現在無効化
   const handlerRef = useRef<ScreenSpaceEventHandler | null>(null);
   const initialFlyDone = useRef(false);
+
+  // フィルター機能
+  const { filters, filtered, toggleSituation, clearFilters, hasActiveFilters } =
+    useBearFilter(bearSightings);
 
   // URLパラメータから座標を取得
   const targetCoords = useMemo(() => {
@@ -234,10 +240,14 @@ export function MapPage() {
           />
         )}
 
-        {/* ヒグマ出没マーカー */}
-        {bearSightings.map((sighting, index) => {
+        {/* ヒグマ出没マーカー（フィルター適用済み） */}
+        {filtered.map((sighting) => {
           const { coordinates } = sighting.geometry;
           const { date, time, ward, location } = sighting.properties;
+          // 元のbearSightingsでのインデックスを取得（クリックイベント用）
+          const originalIndex = bearSightings.findIndex(
+            (s) => s.properties.date === date && s.properties.location === location,
+          );
           const isSelected =
             selectedSighting &&
             selectedSighting.properties.date === date &&
@@ -246,7 +256,7 @@ export function MapPage() {
           return (
             <Entity
               key={`bear-${date}-${time}-${ward}-${location}`}
-              name={`bear:${index}`}
+              name={`bear:${originalIndex}`}
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
               point={{
                 pixelSize: isSelected ? 16 : 10,
@@ -294,6 +304,85 @@ export function MapPage() {
 
       {/* マップコントロール */}
       <MapControls viewerRef={viewerRef} />
+
+      {/* 種別フィルター */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '16px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: '6px',
+            backgroundColor: 'rgba(48, 48, 48, 0.9)',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          }}
+        >
+          {SITUATION_CATEGORIES.map((category) => {
+            const isActive = filters.situations.includes(category);
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => toggleSituation(category)}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '13px',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  backgroundColor: isActive ? '#ef4444' : 'rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  transition: 'background-color 0.15s',
+                }}
+              >
+                {category}
+              </button>
+            );
+          })}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              style={{
+                padding: '6px 12px',
+                fontSize: '13px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                backgroundColor: 'transparent',
+                color: '#fff',
+                transition: 'background-color 0.15s',
+              }}
+            >
+              クリア
+            </button>
+          )}
+        </div>
+        <div
+          style={{
+            fontSize: '12px',
+            color: 'rgba(255,255,255,0.8)',
+            backgroundColor: 'rgba(48, 48, 48, 0.8)',
+            padding: '4px 10px',
+            borderRadius: '4px',
+          }}
+        >
+          {filtered.length} / {bearSightings.length} 件表示
+        </div>
+      </div>
 
       {/* データソースクレジット */}
       <DataSourceCredit
