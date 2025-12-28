@@ -44,7 +44,8 @@ const worldTerrain = Terrain.fromWorldTerrain();
 const bearSightings = bearSightingsData.features as BearSighting[];
 
 // 札幌市の初期視点（札幌駅付近を中心に俯瞰）
-const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 43.065, 50000);
+// pitch -70度で視線が札幌駅(43.065)に届くよう、カメラを南にオフセット
+const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 42.9, 50000);
 const INITIAL_ORIENTATION = {
   heading: 0,
   pitch: CesiumMath.toRadians(-70), // より真上からの視点
