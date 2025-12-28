@@ -90,36 +90,10 @@ const valueStyle: React.CSSProperties = {
   lineHeight: 1.5,
 };
 
-const dangerBadgeStyle = (level: string): React.CSSProperties => {
-  const colors: Record<string, { bg: string; text: string }> = {
-    high: { bg: 'rgba(239, 68, 68, 0.2)', text: '#ef4444' },
-    medium: { bg: 'rgba(245, 158, 11, 0.2)', text: '#f59e0b' },
-    low: { bg: 'rgba(34, 197, 94, 0.2)', text: '#22c55e' },
-  };
-  const color = colors[level] || colors.low;
-  return {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: 500,
-    backgroundColor: color.bg,
-    color: color.text,
-  };
-};
-
-const dangerLabels: Record<string, string> = {
-  high: '危険度: 高',
-  medium: '危険度: 中',
-  low: '危険度: 低',
-};
-
 export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingInfoPanelProps) {
   if (!sighting) return null;
 
-  const { date, time, ward, location, situation, dangerLevel } = sighting.properties;
+  const { date, time, ward, location, situation } = sighting.properties;
   const [lon, lat] = sighting.geometry.coordinates;
   const timeLabel = getTimeLabel(time);
   const weekdayLabel = getWeekdayLabel(date);
@@ -184,32 +158,16 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
           <div style={labelStyle}>状況</div>
           <div style={valueStyle}>{situation}</div>
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-          <div style={fieldStyle}>
-            <div style={labelStyle}>危険度</div>
-            <div style={dangerBadgeStyle(dangerLevel)}>
-              <span
-                style={{
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  backgroundColor: 'currentColor',
-                }}
-              />
-              {dangerLabels[dangerLevel] || dangerLevel}
-            </div>
-          </div>
-          <div style={fieldStyle}>
-            <div style={labelStyle}>座標</div>
-            <div
-              style={{
-                fontSize: '11px',
-                color: 'rgba(255, 255, 255, 0.6)',
-                fontFamily: 'monospace',
-              }}
-            >
-              {lat.toFixed(5)}, {lon.toFixed(5)}
-            </div>
+        <div style={fieldStyle}>
+          <div style={labelStyle}>座標</div>
+          <div
+            style={{
+              fontSize: '11px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontFamily: 'monospace',
+            }}
+          >
+            {lat.toFixed(5)}, {lon.toFixed(5)}
           </div>
         </div>
       </div>

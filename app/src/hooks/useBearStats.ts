@@ -3,7 +3,6 @@ import bearSightingsData from '../data/bear_sightings_2025.json';
 import type { BearSighting } from '../types';
 import {
   calculateSummary,
-  countByDangerLevel,
   countByHour,
   countByMonth,
   countBySituation,
@@ -20,7 +19,6 @@ export function useBearStats() {
       monthly: countByMonth(sightings),
       byWard: countByWard(sightings),
       byHour: countByHour(sightings),
-      byDangerLevel: countByDangerLevel(sightings),
       bySituation: countBySituation(sightings),
       byWeekday: countByWeekday(sightings),
       summary: calculateSummary(sightings),

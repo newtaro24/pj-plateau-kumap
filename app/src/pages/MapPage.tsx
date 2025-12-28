@@ -178,19 +178,11 @@ export function MapPage() {
         {/* ヒグマ出没マーカー */}
         {bearSightings.map((sighting, index) => {
           const { coordinates } = sighting.geometry;
-          const { date, time, ward, location, dangerLevel } = sighting.properties;
+          const { date, time, ward, location } = sighting.properties;
           const isSelected =
             selectedSighting &&
             selectedSighting.properties.date === date &&
             selectedSighting.properties.location === location;
-
-          // 危険度に応じた色
-          const markerColor =
-            dangerLevel === 'high'
-              ? Color.fromCssColorString('#ef4444')
-              : dangerLevel === 'medium'
-                ? Color.fromCssColorString('#f59e0b')
-                : Color.fromCssColorString('#22c55e');
 
           return (
             <Entity
@@ -199,7 +191,7 @@ export function MapPage() {
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
               point={{
                 pixelSize: isSelected ? 16 : 10,
-                color: markerColor,
+                color: Color.fromCssColorString('#ef4444'),
                 outlineColor: Color.WHITE,
                 outlineWidth: isSelected ? 3 : 2,
                 heightReference: HeightReference.CLAMP_TO_GROUND,
@@ -214,13 +206,6 @@ export function MapPage() {
           bearSightings.map((sighting) => {
             const { coordinates } = sighting.geometry;
             const { date, time, location } = sighting.properties;
-            const dangerLevel = sighting.properties.dangerLevel;
-            const heatColor =
-              dangerLevel === 'high'
-                ? Color.fromCssColorString('#ef4444').withAlpha(0.15)
-                : dangerLevel === 'medium'
-                  ? Color.fromCssColorString('#f59e0b').withAlpha(0.12)
-                  : Color.fromCssColorString('#22c55e').withAlpha(0.1);
 
             return (
               <Entity
@@ -230,7 +215,7 @@ export function MapPage() {
                 <EllipseGraphics
                   semiMajorAxis={500}
                   semiMinorAxis={500}
-                  material={heatColor}
+                  material={Color.fromCssColorString('#ef4444').withAlpha(0.15)}
                   outline={false}
                   height={0}
                 />
