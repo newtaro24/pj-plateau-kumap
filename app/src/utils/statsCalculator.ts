@@ -91,9 +91,7 @@ export function countByHour(sightings: BearSighting[]): HourlyData[] {
 }
 
 export function categorizeSituation(situation: string): string {
-  if (situation.includes('目撃')) return '目撃';
-  if (situation.includes('カメラ')) return 'カメラ';
-  if (situation.includes('駆除')) return '駆除';
+  // 痕跡: ヒグマがいた形跡（先に判定）
   if (
     situation.includes('足跡') ||
     situation.includes('フン') ||
@@ -106,10 +104,20 @@ export function categorizeSituation(situation: string): string {
   ) {
     return '痕跡';
   }
+  // ヒグマ確認: 直接ヒグマを見た・撮影した・駆除した
+  if (
+    situation.includes('目撃') ||
+    situation.includes('カメラ') ||
+    situation.includes('駆除') ||
+    situation.includes('ヒグマを確認')
+  ) {
+    return 'ヒグマ確認';
+  }
+  // その他: 鳴き声など
   return 'その他';
 }
 
-export const SITUATION_CATEGORIES = ['目撃', '痕跡', 'カメラ', '駆除', 'その他'] as const;
+export const SITUATION_CATEGORIES = ['ヒグマ確認', '痕跡', 'その他'] as const;
 
 export function countBySituation(sightings: BearSighting[]): SituationData[] {
   const counts = new Map<string, number>();
@@ -119,7 +127,7 @@ export function countBySituation(sightings: BearSighting[]): SituationData[] {
     counts.set(category, (counts.get(category) || 0) + 1);
   }
 
-  const order = ['目撃', '痕跡', 'カメラ', '駆除', 'その他'];
+  const order = ['ヒグマ確認', '痕跡', 'その他'];
   return order
     .filter((cat) => counts.has(cat))
     .map((category) => ({

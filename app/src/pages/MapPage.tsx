@@ -24,7 +24,14 @@ import { SightingInfoPanel } from '../components/SightingInfoPanel';
 import bearSightingsData from '../data/bear_sightings_2025.json';
 import { useBearFilter } from '../hooks/useBearFilter';
 import type { BearSighting } from '../types';
-import { SITUATION_CATEGORIES } from '../utils/statsCalculator';
+import { categorizeSituation, SITUATION_CATEGORIES } from '../utils/statsCalculator';
+
+// 状況タイプ別の配色（茶色ベース、ダーク背景に映える）
+const SITUATION_COLORS: Record<string, string> = {
+  ヒグマ確認: '#a1785b', // 茶色（メインテーマ）
+  痕跡: '#7c9473', // 緑系（自然の痕跡）
+  その他: '#8b7da8', // 紫グレー
+};
 
 // Cesium ionのアクセストークンを設定
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
@@ -243,7 +250,7 @@ export function MapPage() {
         {/* ヒグマ出没マーカー（フィルター適用済み） */}
         {filtered.map((sighting) => {
           const { coordinates } = sighting.geometry;
-          const { date, time, ward, location } = sighting.properties;
+          const { date, time, ward, location, situation } = sighting.properties;
           // 元のbearSightingsでのインデックスを取得（クリックイベント用）
           const originalIndex = bearSightings.findIndex(
             (s) => s.properties.date === date && s.properties.location === location,
@@ -253,6 +260,10 @@ export function MapPage() {
             selectedSighting.properties.date === date &&
             selectedSighting.properties.location === location;
 
+          // 種別に応じた色を取得
+          const category = categorizeSituation(situation);
+          const markerColor = SITUATION_COLORS[category] || '#a1785b';
+
           return (
             <Entity
               key={`bear-${date}-${time}-${ward}-${location}`}
@@ -260,7 +271,7 @@ export function MapPage() {
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
               point={{
                 pixelSize: isSelected ? 16 : 10,
-                color: Color.fromCssColorString('#a1785b'),
+                color: Color.fromCssColorString(markerColor),
                 outlineColor: Color.WHITE,
                 outlineWidth: isSelected ? 3 : 2,
                 heightReference: HeightReference.CLAMP_TO_GROUND,
