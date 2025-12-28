@@ -5,13 +5,14 @@ import {
   Math as CesiumMath,
   Color,
   defined,
+  HeightReference,
   ImageryLayer,
   Ion,
   IonResource,
-  OpenStreetMapImageryProvider,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
   Terrain,
+  UrlTemplateImageryProvider,
 } from 'cesium';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CesiumComponentRef } from 'resium';
@@ -26,11 +27,15 @@ import type { BearSighting } from '../types';
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 Ion.defaultAccessToken = cesiumToken || '';
 
-// OpenStreetMapをベースマップとして使用（建物の写り込みを避ける）
-const osmImageryProvider = new OpenStreetMapImageryProvider({
-  url: 'https://tile.openstreetmap.org/',
+// PLATEAU VIEW 白地図タイル（シンプルで見やすい）
+const lightMapProvider = new UrlTemplateImageryProvider({
+  url: 'https://api.plateauview.mlit.go.jp/tiles/light-map/{z}/{x}/{y}.png',
+  maximumLevel: 18,
 });
-const baseLayer = new ImageryLayer(osmImageryProvider);
+const lightMapLayer = new ImageryLayer(lightMapProvider);
+
+// 白地図スタイルの背景色（タイルが読み込まれていない領域用）
+const LIGHT_BASE_COLOR = Color.fromCssColorString('#f5f5f5');
 
 // Cesium World Terrain（地形データ）を使用
 const worldTerrain = Terrain.fromWorldTerrain();
@@ -38,8 +43,8 @@ const worldTerrain = Terrain.fromWorldTerrain();
 // ヒグマ出没データ（コンポーネント外で定義）
 const bearSightings = bearSightingsData.features as BearSighting[];
 
-// 札幌市の初期視点（俯瞰）- コンポーネント外で定義
-const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 43.05, 80000);
+// 札幌市の初期視点（札幌駅付近を中心に俯瞰）
+const INITIAL_POSITION = Cartesian3.fromDegrees(141.35, 43.065, 50000);
 const INITIAL_ORIENTATION = {
   heading: 0,
   pitch: CesiumMath.toRadians(-70), // より真上からの視点
@@ -77,6 +82,10 @@ export function MapPage() {
 
       // 地形に対する深度テストを有効化
       cesiumViewer.scene.globe.depthTestAgainstTerrain = true;
+
+      // 白地図スタイル：地球の基本色と背景色を明るく設定
+      cesiumViewer.scene.globe.baseColor = LIGHT_BASE_COLOR;
+      cesiumViewer.scene.backgroundColor = LIGHT_BASE_COLOR;
 
       // クリックイベントハンドラーを設定
       handler = new ScreenSpaceEventHandler(cesiumViewer.scene.canvas);
@@ -149,7 +158,7 @@ export function MapPage() {
         sceneModePicker={false}
         infoBox={false}
         selectionIndicator={false}
-        baseLayer={baseLayer}
+        baseLayer={lightMapLayer}
         terrain={worldTerrain}
       >
         {/* 初期カメラ位置を設定 */}
@@ -207,6 +216,8 @@ export function MapPage() {
                 color: markerColor,
                 outlineColor: Color.WHITE,
                 outlineWidth: isSelected ? 3 : 2,
+                heightReference: HeightReference.CLAMP_TO_GROUND,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
               }}
             />
           );
