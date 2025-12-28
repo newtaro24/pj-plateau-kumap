@@ -68,7 +68,7 @@ export function Header() {
     <header style={headerStyle}>
       <div style={logoContainerStyle}>
         <NavLink to="/" style={logoStyle}>
-          札幌ヒグママップ
+          札幌市ヒグマ出没3Dマップ
         </NavLink>
       </div>
 

@@ -102,7 +102,7 @@ export function LandingPage() {
             letterSpacing: '-0.02em',
           }}
         >
-          札幌市ヒグマ出没マップ
+          札幌市ヒグマ出没3Dマップ
         </h1>
         <p style={{ fontSize: '15px', color: '#888', lineHeight: 1.8, marginBottom: '32px' }}>
           ヒグマ出没データを統計・分析して可視化。
