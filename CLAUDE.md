@@ -91,7 +91,17 @@ viewer.scene.globe.depthTestAgainstTerrain = true;
 ## スラッシュコマンド
 
 - `/commit` - Gitコミット作成
+- `/pr` - プルリクエスト作成
 - `/memorize` - 重要な情報を記録
+
+---
+
+## サブエージェント
+
+- `pr-reviewer` - プロダクト・UX観点レビュー（目的との整合性、ユーザー価値、優先度）
+- `code-reviewer` - 技術観点レビュー（コード品質、セキュリティ、ベストプラクティス）
+
+使い方: 「pr-reviewerでレビューして」「コードレビューして」など
 
 ---
 
