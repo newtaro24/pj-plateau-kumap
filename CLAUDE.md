@@ -82,6 +82,7 @@ viewer.scene.globe.depthTestAgainstTerrain = true;
 
 ## Git コミットルール
 
+- **mainに直接コミット/プッシュしない** - 必ずブランチを切ってPRを作成
 - 短い英語のコミットメッセージ（命令形、50文字以内）
 - Co-Authored-By や絵文字は追加しない
 - `/commit` コマンドを使用

@@ -55,7 +55,7 @@ const INITIAL_ORIENTATION = {
 export function MapPage() {
   const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const [selectedSighting, setSelectedSighting] = useState<BearSighting | null>(null);
-  const [showHeatmap, setShowHeatmap] = useState(false);
+  const showHeatmap = false; // ヒートマップは現在無効化
   const handlerRef = useRef<ScreenSpaceEventHandler | null>(null);
 
   // 区ごとの出没件数を計算
@@ -264,11 +264,7 @@ export function MapPage() {
       />
 
       {/* マップコントロール */}
-      <MapControls
-        viewerRef={viewerRef}
-        showHeatmap={showHeatmap}
-        onToggleHeatmap={() => setShowHeatmap((prev) => !prev)}
-      />
+      <MapControls viewerRef={viewerRef} />
 
       {/* データソースクレジット */}
       <DataSourceCredit
