@@ -15,6 +15,7 @@ import {
   UrlTemplateImageryProvider,
 } from 'cesium';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import type { CesiumComponentRef } from 'resium';
 import { CameraFlyTo, Cesium3DTileset, EllipseGraphics, Entity, Viewer } from 'resium';
 import { DataSourceCredit } from '../components/DataSourceCredit';
@@ -54,9 +55,21 @@ const INITIAL_ORIENTATION = {
 
 export function MapPage() {
   const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  const [searchParams] = useSearchParams();
   const [selectedSighting, setSelectedSighting] = useState<BearSighting | null>(null);
   const showHeatmap = false; // ヒートマップは現在無効化
   const handlerRef = useRef<ScreenSpaceEventHandler | null>(null);
+  const initialFlyDone = useRef(false);
+
+  // URLパラメータから座標を取得
+  const targetCoords = useMemo(() => {
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+    if (lat && lng) {
+      return { lat: Number.parseFloat(lat), lng: Number.parseFloat(lng) };
+    }
+    return null;
+  }, [searchParams]);
 
   // 区ごとの出没件数を計算
   const wardCounts = useMemo(() => {
@@ -88,6 +101,39 @@ export function MapPage() {
       cesiumViewer.scene.globe.baseColor = LIGHT_BASE_COLOR;
       cesiumViewer.scene.backgroundColor = LIGHT_BASE_COLOR;
 
+      // URLパラメータの座標にflyTo
+      if (targetCoords && !initialFlyDone.current) {
+        initialFlyDone.current = true;
+        // カメラ高度と角度から、マーカーが画面中央に来るようオフセット計算
+        // pitch -45度でカメラを南にオフセット
+        const cameraHeight = 1100; // カメラ高度（約1.1km）
+        const latOffset = 0.008; // 約900mのオフセット（緯度方向）
+        cesiumViewer.camera.flyTo({
+          destination: Cartesian3.fromDegrees(
+            targetCoords.lng,
+            targetCoords.lat - latOffset,
+            cameraHeight,
+          ),
+          orientation: {
+            heading: 0,
+            pitch: CesiumMath.toRadians(-45),
+            roll: 0,
+          },
+          duration: 1.5,
+        });
+
+        // 該当するsightingを選択状態にする
+        const matchingSighting = bearSightings.find((s) => {
+          const [sLng, sLat] = s.geometry.coordinates;
+          return (
+            Math.abs(sLat - targetCoords.lat) < 0.0001 && Math.abs(sLng - targetCoords.lng) < 0.0001
+          );
+        });
+        if (matchingSighting) {
+          setSelectedSighting(matchingSighting);
+        }
+      }
+
       // クリックイベントハンドラーを設定
       handler = new ScreenSpaceEventHandler(cesiumViewer.scene.canvas);
       handlerRef.current = handler;
@@ -103,6 +149,19 @@ export function MapPage() {
             const sighting = bearSightings[index];
             if (sighting) {
               setSelectedSighting(sighting);
+              // マーカーにカメラをフォーカス
+              const [lng, lat] = sighting.geometry.coordinates;
+              const cameraHeight = 1100;
+              const latOffset = 0.008;
+              cesiumViewer.camera.flyTo({
+                destination: Cartesian3.fromDegrees(lng, lat - latOffset, cameraHeight),
+                orientation: {
+                  heading: 0,
+                  pitch: CesiumMath.toRadians(-45),
+                  roll: 0,
+                },
+                duration: 1.0,
+              });
               return;
             }
           }
@@ -123,7 +182,7 @@ export function MapPage() {
       }
       handlerRef.current = null;
     };
-  }, []);
+  }, [targetCoords]);
 
   const handleClosePanel = useCallback(() => {
     setSelectedSighting(null);

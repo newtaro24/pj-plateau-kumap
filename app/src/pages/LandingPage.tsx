@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   Area,
   AreaChart,
@@ -26,6 +26,7 @@ import {
 const ACCENT = '#e53935';
 
 export function LandingPage() {
+  const navigate = useNavigate();
   const { sightings } = useBearStats();
   const { filters, filtered, toggleMonth, toggleWard, clearFilters, hasActiveFilters } =
     useBearFilter(sightings);
@@ -504,14 +505,29 @@ export function LandingPage() {
         <div style={{ background: '#111', borderRadius: '8px', overflow: 'hidden' }}>
           {recentSightings.map((sighting, index) => {
             const { date, time, ward, location } = sighting.properties;
+            const [lng, lat] = sighting.geometry.coordinates;
             return (
-              <div
+              <button
+                type="button"
                 key={`${date}-${time}-${location}`}
+                onClick={() => navigate(`/map?lat=${lat}&lng=${lng}`)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   padding: '16px 20px',
                   borderBottom: index < recentSightings.length - 1 ? '1px solid #1a1a1a' : 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s',
+                  background: 'transparent',
+                  border: 'none',
+                  width: '100%',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a1a1a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
                 <div
@@ -543,7 +559,8 @@ export function LandingPage() {
                 <div style={{ fontSize: '11px', color: '#444', marginLeft: '16px', flexShrink: 0 }}>
                   {date}
                 </div>
-              </div>
+                <div style={{ marginLeft: '12px', color: '#444', fontSize: '14px' }}>→</div>
+              </button>
             );
           })}
         </div>
