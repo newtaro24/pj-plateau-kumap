@@ -90,30 +90,32 @@ export function countByHour(sightings: BearSighting[]): HourlyData[] {
   }));
 }
 
-export function countBySituation(sightings: BearSighting[]): SituationData[] {
-  const categorize = (situation: string): string => {
-    if (situation.includes('目撃')) return '目撃';
-    if (situation.includes('カメラ')) return 'カメラ';
-    if (situation.includes('駆除')) return '駆除';
-    if (
-      situation.includes('足跡') ||
-      situation.includes('フン') ||
-      situation.includes('堀り') ||
-      situation.includes('掘り') ||
-      situation.includes('被毛') ||
-      situation.includes('爪') ||
-      situation.includes('食痕') ||
-      situation.includes('枝折り')
-    ) {
-      return '痕跡';
-    }
-    return 'その他';
-  };
+export function categorizeSituation(situation: string): string {
+  if (situation.includes('目撃')) return '目撃';
+  if (situation.includes('カメラ')) return 'カメラ';
+  if (situation.includes('駆除')) return '駆除';
+  if (
+    situation.includes('足跡') ||
+    situation.includes('フン') ||
+    situation.includes('堀り') ||
+    situation.includes('掘り') ||
+    situation.includes('被毛') ||
+    situation.includes('爪') ||
+    situation.includes('食痕') ||
+    situation.includes('枝折り')
+  ) {
+    return '痕跡';
+  }
+  return 'その他';
+}
 
+export const SITUATION_CATEGORIES = ['目撃', '痕跡', 'カメラ', '駆除', 'その他'] as const;
+
+export function countBySituation(sightings: BearSighting[]): SituationData[] {
   const counts = new Map<string, number>();
 
   for (const sighting of sightings) {
-    const category = categorize(sighting.properties.situation);
+    const category = categorizeSituation(sighting.properties.situation);
     counts.set(category, (counts.get(category) || 0) + 1);
   }
 
