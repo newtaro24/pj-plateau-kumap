@@ -6,6 +6,9 @@ import type { CesiumComponentRef } from 'resium';
 
 interface MapControlsProps {
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
+  lightingEnabled?: boolean;
+  onToggleLighting?: () => void;
+  currentDateTime?: { date: string; time: string } | null;
 }
 
 const controlsContainerStyle: React.CSSProperties = {
@@ -40,7 +43,17 @@ const buttonHoverStyle: React.CSSProperties = {
   backgroundColor: 'rgba(80, 80, 80, 0.95)',
 };
 
-export function MapControls({ viewerRef }: MapControlsProps) {
+const buttonActiveStyle: React.CSSProperties = {
+  ...buttonStyle,
+  backgroundColor: '#a1785b',
+};
+
+export function MapControls({
+  viewerRef,
+  lightingEnabled,
+  onToggleLighting,
+  currentDateTime,
+}: MapControlsProps) {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const getViewer = () => viewerRef.current?.cesiumElement ?? null;
@@ -151,6 +164,39 @@ export function MapControls({ viewerRef }: MapControlsProps) {
       >
         ↻
       </button>
+
+      {onToggleLighting && (
+        <>
+          <div style={{ height: '8px' }} />
+          <button
+            type="button"
+            style={lightingEnabled ? buttonActiveStyle : getButtonStyle('lighting')}
+            onClick={onToggleLighting}
+            onMouseEnter={() => setHoveredButton('lighting')}
+            onMouseLeave={() => setHoveredButton(null)}
+            title="日照シミュレーション"
+          >
+            ☀
+          </button>
+          {lightingEnabled && currentDateTime && (
+            <div
+              style={{
+                backgroundColor: 'rgba(48, 48, 48, 0.95)',
+                borderRadius: '6px',
+                padding: '6px 8px',
+                color: '#fff',
+                fontSize: '11px',
+                textAlign: 'center',
+                lineHeight: 1.3,
+                marginTop: '4px',
+              }}
+            >
+              <div style={{ opacity: 0.7 }}>{currentDateTime.date}</div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{currentDateTime.time}</div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
