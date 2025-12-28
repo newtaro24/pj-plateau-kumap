@@ -1,6 +1,5 @@
 import type {
   BearSighting,
-  DangerLevelData,
   HourlyData,
   MonthlyData,
   SituationData,
@@ -48,10 +47,7 @@ export function calculateSummary(sightings: BearSighting[]): SummaryStats {
   const wardCounts = countByWard(sightings);
   const topWard = wardCounts[0]?.ward || '不明';
 
-  // 危険度高の件数
-  const dangerHighCount = sightings.filter((s) => s.properties.dangerLevel === 'high').length;
-
-  return { total, thisMonth, topWard, dangerHighCount };
+  return { total, thisMonth, topWard };
 }
 
 export function formatMonthLabel(month: string): string {
@@ -91,26 +87,6 @@ export function countByHour(sightings: BearSighting[]): HourlyData[] {
     hour: r.hour,
     label: r.label,
     count: counts.get(r.hour) || 0,
-  }));
-}
-
-export function countByDangerLevel(sightings: BearSighting[]): DangerLevelData[] {
-  const levelConfig = [
-    { level: 'high', label: '高', color: '#e53935' },
-    { level: 'medium', label: '中', color: '#f59e0b' },
-    { level: 'low', label: '低', color: '#22c55e' },
-  ];
-
-  const counts = new Map<string, number>();
-
-  for (const sighting of sightings) {
-    const level = sighting.properties.dangerLevel;
-    counts.set(level, (counts.get(level) || 0) + 1);
-  }
-
-  return levelConfig.map((c) => ({
-    ...c,
-    count: counts.get(c.level) || 0,
   }));
 }
 

@@ -10,7 +10,6 @@ export interface BearSighting {
     ward: string;
     location: string;
     situation: string;
-    dangerLevel: string;
   };
 }
 
@@ -28,20 +27,12 @@ export interface SummaryStats {
   total: number;
   thisMonth: number;
   topWard: string;
-  dangerHighCount: number;
 }
 
 export interface HourlyData {
   hour: string;
   label: string;
   count: number;
-}
-
-export interface DangerLevelData {
-  level: string;
-  label: string;
-  count: number;
-  color: string;
 }
 
 export interface SituationData {

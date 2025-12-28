@@ -6,8 +6,6 @@ import {
   Bar,
   BarChart,
   Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,7 +15,6 @@ import { useBearFilter } from '../hooks/useBearFilter';
 import { useBearStats } from '../hooks/useBearStats';
 import {
   calculateSummary,
-  countByDangerLevel,
   countByHour,
   countByMonth,
   countBySituation,
@@ -30,16 +27,27 @@ const ACCENT = '#e53935';
 
 export function LandingPage() {
   const { sightings } = useBearStats();
-  const {
-    filters,
-    options,
-    filtered,
-    toggleMonth,
-    toggleWard,
-    toggleDangerLevel,
-    clearFilters,
-    hasActiveFilters,
-  } = useBearFilter(sightings);
+  const { filters, filtered, toggleMonth, toggleWard, clearFilters, hasActiveFilters } =
+    useBearFilter(sightings);
+
+  // 月オプションを算出
+  const monthOptions = useMemo(() => {
+    const monthSet = new Set<string>();
+    for (const s of sightings) {
+      const month = s.properties.date.substring(0, 7);
+      monthSet.add(month);
+    }
+    return Array.from(monthSet).sort();
+  }, [sightings]);
+
+  // 区オプションを算出
+  const wardOptions = useMemo(() => {
+    const wardSet = new Set<string>();
+    for (const s of sightings) {
+      wardSet.add(s.properties.ward);
+    }
+    return Array.from(wardSet).sort();
+  }, [sightings]);
 
   // フィルタ適用後のデータで統計を再計算
   const stats = useMemo(() => {
@@ -47,14 +55,13 @@ export function LandingPage() {
       monthly: countByMonth(filtered),
       byWard: countByWard(filtered),
       byHour: countByHour(filtered),
-      byDangerLevel: countByDangerLevel(filtered),
       bySituation: countBySituation(filtered),
       byWeekday: countByWeekday(filtered),
       summary: calculateSummary(filtered),
     };
   }, [filtered]);
 
-  const { monthly, byWard, byHour, byDangerLevel, bySituation, byWeekday, summary } = stats;
+  const { monthly, byWard, byHour, bySituation, byWeekday, summary } = stats;
 
   const recentSightings = filtered.slice(0, 6);
 
@@ -205,7 +212,7 @@ export function LandingPage() {
           <div style={{ marginBottom: '12px' }}>
             <div style={{ fontSize: '11px', color: '#555', marginBottom: '8px' }}>月</div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {options.months.map((month) => (
+              {monthOptions.map((month) => (
                 <button
                   key={month}
                   type="button"
@@ -227,10 +234,10 @@ export function LandingPage() {
           </div>
 
           {/* Ward Filter */}
-          <div style={{ marginBottom: '12px' }}>
+          <div>
             <div style={{ fontSize: '11px', color: '#555', marginBottom: '8px' }}>区</div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {options.wards.map((ward) => (
+              {wardOptions.map((ward) => (
                 <button
                   key={ward}
                   type="button"
@@ -246,35 +253,6 @@ export function LandingPage() {
                   }}
                 >
                   {ward}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Danger Level Filter */}
-          <div>
-            <div style={{ fontSize: '11px', color: '#555', marginBottom: '8px' }}>危険度</div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {[
-                { level: 'high', label: '高', color: '#e53935' },
-                { level: 'medium', label: '中', color: '#f59e0b' },
-                { level: 'low', label: '低', color: '#22c55e' },
-              ].map((item) => (
-                <button
-                  key={item.level}
-                  type="button"
-                  onClick={() => toggleDangerLevel(item.level)}
-                  style={{
-                    background: filters.dangerLevels.includes(item.level) ? item.color : '#222',
-                    border: 'none',
-                    color: filters.dangerLevels.includes(item.level) ? '#fff' : '#888',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {item.label}
                 </button>
               ))}
             </div>
@@ -426,82 +404,6 @@ export function LandingPage() {
             </ResponsiveContainer>
           </div>
 
-          {/* Danger Level Chart */}
-          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
-            <h3
-              style={{
-                fontSize: '12px',
-                color: '#666',
-                marginBottom: '20px',
-                letterSpacing: '0.05em',
-              }}
-            >
-              危険度別
-            </h3>
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={byDangerLevel.map((d) => ({
-                    name: d.label,
-                    value: d.count,
-                    color: d.color,
-                  }))}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={45}
-                  outerRadius={70}
-                  paddingAngle={2}
-                >
-                  {byDangerLevel.map((entry) => (
-                    <Cell key={entry.level} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: '#1a1a1a',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div
-              style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '8px' }}
-            >
-              {byDangerLevel.map((entry) => (
-                <div
-                  key={entry.level}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <div
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: entry.color,
-                    }}
-                  />
-                  <span style={{ fontSize: '11px', color: '#888' }}>
-                    {entry.label} ({entry.count})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Third Charts Row */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '24px',
-            marginTop: '24px',
-          }}
-        >
           {/* Situation Chart */}
           <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
             <h3
@@ -601,7 +503,7 @@ export function LandingPage() {
         </h3>
         <div style={{ background: '#111', borderRadius: '8px', overflow: 'hidden' }}>
           {recentSightings.map((sighting, index) => {
-            const { date, time, ward, location, dangerLevel } = sighting.properties;
+            const { date, time, ward, location } = sighting.properties;
             return (
               <div
                 key={`${date}-${time}-${location}`}
@@ -617,12 +519,7 @@ export function LandingPage() {
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
-                    background:
-                      dangerLevel === 'high'
-                        ? ACCENT
-                        : dangerLevel === 'medium'
-                          ? '#f59e0b'
-                          : '#22c55e',
+                    background: ACCENT,
                     marginRight: '16px',
                     flexShrink: 0,
                   }}

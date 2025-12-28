@@ -103,22 +103,6 @@ export function MapPage() {
             const sighting = bearSightings[index];
             if (sighting) {
               setSelectedSighting(sighting);
-              // マーカーの位置にズーム（現在のカメラ高度を維持）
-              const currentHeight = cesiumViewer.camera.positionCartographic.height;
-              const targetHeight = Math.min(currentHeight, 5000); // 最大5kmまでズーム
-              cesiumViewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(
-                  sighting.geometry.coordinates[0],
-                  sighting.geometry.coordinates[1],
-                  targetHeight,
-                ),
-                orientation: {
-                  heading: cesiumViewer.camera.heading,
-                  pitch: cesiumViewer.camera.pitch,
-                  roll: 0,
-                },
-                duration: 0.5,
-              });
               return;
             }
           }
@@ -162,11 +146,12 @@ export function MapPage() {
         baseLayer={lightMapLayer}
         terrain={worldTerrain}
       >
-        {/* 初期カメラ位置を設定 */}
+        {/* 初期カメラ位置を設定（一度だけ実行） */}
         <CameraFlyTo
           destination={INITIAL_POSITION}
           orientation={INITIAL_ORIENTATION}
           duration={0}
+          once={true}
         />
 
         {/* PLATEAU 3D都市モデル（札幌市中央区） */}
@@ -193,19 +178,11 @@ export function MapPage() {
         {/* ヒグマ出没マーカー */}
         {bearSightings.map((sighting, index) => {
           const { coordinates } = sighting.geometry;
-          const { date, time, ward, location, dangerLevel } = sighting.properties;
+          const { date, time, ward, location } = sighting.properties;
           const isSelected =
             selectedSighting &&
             selectedSighting.properties.date === date &&
             selectedSighting.properties.location === location;
-
-          // 危険度に応じた色
-          const markerColor =
-            dangerLevel === 'high'
-              ? Color.fromCssColorString('#ef4444')
-              : dangerLevel === 'medium'
-                ? Color.fromCssColorString('#f59e0b')
-                : Color.fromCssColorString('#22c55e');
 
           return (
             <Entity
@@ -214,7 +191,7 @@ export function MapPage() {
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
               point={{
                 pixelSize: isSelected ? 16 : 10,
-                color: markerColor,
+                color: Color.fromCssColorString('#ef4444'),
                 outlineColor: Color.WHITE,
                 outlineWidth: isSelected ? 3 : 2,
                 heightReference: HeightReference.CLAMP_TO_GROUND,
@@ -229,13 +206,6 @@ export function MapPage() {
           bearSightings.map((sighting) => {
             const { coordinates } = sighting.geometry;
             const { date, time, location } = sighting.properties;
-            const dangerLevel = sighting.properties.dangerLevel;
-            const heatColor =
-              dangerLevel === 'high'
-                ? Color.fromCssColorString('#ef4444').withAlpha(0.15)
-                : dangerLevel === 'medium'
-                  ? Color.fromCssColorString('#f59e0b').withAlpha(0.12)
-                  : Color.fromCssColorString('#22c55e').withAlpha(0.1);
 
             return (
               <Entity
@@ -245,7 +215,7 @@ export function MapPage() {
                 <EllipseGraphics
                   semiMajorAxis={500}
                   semiMinorAxis={500}
-                  material={heatColor}
+                  material={Color.fromCssColorString('#ef4444').withAlpha(0.15)}
                   outline={false}
                   height={0}
                 />
