@@ -6,6 +6,8 @@ import type { CesiumComponentRef } from 'resium';
 
 interface MapControlsProps {
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
+  lightingEnabled?: boolean;
+  onToggleLighting?: () => void;
 }
 
 const controlsContainerStyle: React.CSSProperties = {
@@ -40,7 +42,12 @@ const buttonHoverStyle: React.CSSProperties = {
   backgroundColor: 'rgba(80, 80, 80, 0.95)',
 };
 
-export function MapControls({ viewerRef }: MapControlsProps) {
+const buttonActiveStyle: React.CSSProperties = {
+  ...buttonStyle,
+  backgroundColor: '#a1785b',
+};
+
+export function MapControls({ viewerRef, lightingEnabled, onToggleLighting }: MapControlsProps) {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const getViewer = () => viewerRef.current?.cesiumElement ?? null;
@@ -151,6 +158,22 @@ export function MapControls({ viewerRef }: MapControlsProps) {
       >
         ↻
       </button>
+
+      {onToggleLighting && (
+        <>
+          <div style={{ height: '8px' }} />
+          <button
+            type="button"
+            style={lightingEnabled ? buttonActiveStyle : getButtonStyle('lighting')}
+            onClick={onToggleLighting}
+            onMouseEnter={() => setHoveredButton('lighting')}
+            onMouseLeave={() => setHoveredButton(null)}
+            title="日照シミュレーション"
+          >
+            ☀
+          </button>
+        </>
+      )}
     </div>
   );
 }

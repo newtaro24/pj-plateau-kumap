@@ -9,6 +9,7 @@ import {
   ImageryLayer,
   Ion,
   IonResource,
+  JulianDate,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
   Terrain,
@@ -66,6 +67,7 @@ export function MapPage() {
   const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const [searchParams] = useSearchParams();
   const [selectedSighting, setSelectedSighting] = useState<BearSighting | null>(null);
+  const [lightingEnabled, setLightingEnabled] = useState(true);
   const showHeatmap = false; // ヒートマップは現在無効化
   const handlerRef = useRef<ScreenSpaceEventHandler | null>(null);
   const initialFlyDone = useRef(false);
@@ -197,6 +199,34 @@ export function MapPage() {
     };
   }, [targetCoords]);
 
+  // 日照シミュレーション制御
+  useEffect(() => {
+    const cesiumViewer = viewerRef.current?.cesiumElement;
+    if (!cesiumViewer || !cesiumViewer.scene || !cesiumViewer.scene.globe) {
+      return;
+    }
+
+    // 照明と影のオン/オフ
+    cesiumViewer.scene.globe.enableLighting = lightingEnabled;
+    cesiumViewer.shadows = lightingEnabled;
+
+    // 選択中のマーカーがあれば、その日時を設定
+    if (lightingEnabled && selectedSighting) {
+      try {
+        const { date, time } = selectedSighting.properties;
+        // time: "9:30" → "09:30" に正規化
+        const normalizedTime = time
+          ? time.replace(/^(\d):/, '0$1:').replace(/:(\d)$/, ':0$1')
+          : '12:00';
+        const isoString = `${date}T${normalizedTime}:00+09:00`;
+        cesiumViewer.clock.currentTime = JulianDate.fromIso8601(isoString);
+        cesiumViewer.clock.shouldAnimate = false;
+      } catch (e) {
+        console.error('Failed to set clock time:', e);
+      }
+    }
+  }, [lightingEnabled, selectedSighting]);
+
   const handleClosePanel = useCallback(() => {
     setSelectedSighting(null);
   }, []);
@@ -217,6 +247,7 @@ export function MapPage() {
         selectionIndicator={false}
         baseLayer={lightMapLayer}
         terrain={worldTerrain}
+        shadows={lightingEnabled}
       >
         {/* 初期カメラ位置を設定（一度だけ実行） */}
         <CameraFlyTo
@@ -314,7 +345,11 @@ export function MapPage() {
       />
 
       {/* マップコントロール */}
-      <MapControls viewerRef={viewerRef} />
+      <MapControls
+        viewerRef={viewerRef}
+        lightingEnabled={lightingEnabled}
+        onToggleLighting={() => setLightingEnabled(!lightingEnabled)}
+      />
 
       {/* 種別フィルター */}
       <div
