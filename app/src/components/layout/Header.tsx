@@ -117,7 +117,7 @@ export function Header() {
           style={{
             width: '6px',
             height: '6px',
-            backgroundColor: '#22c55e',
+            backgroundColor: '#a1785b',
             borderRadius: '50%',
             animation: 'pulse 2s infinite',
           }}
