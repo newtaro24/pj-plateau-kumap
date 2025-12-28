@@ -30,3 +30,27 @@ export interface SummaryStats {
   topWard: string;
   dangerHighCount: number;
 }
+
+export interface HourlyData {
+  hour: string;
+  label: string;
+  count: number;
+}
+
+export interface DangerLevelData {
+  level: string;
+  label: string;
+  count: number;
+  color: string;
+}
+
+export interface SituationData {
+  category: string;
+  count: number;
+}
+
+export interface WeekdayData {
+  weekday: number;
+  label: string;
+  count: number;
+}

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router';
 import {
   Area,
@@ -5,20 +6,57 @@ import {
   Bar,
   BarChart,
   Cell,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
+import { useBearFilter } from '../hooks/useBearFilter';
 import { useBearStats } from '../hooks/useBearStats';
-import { formatMonthLabel } from '../utils/statsCalculator';
+import {
+  calculateSummary,
+  countByDangerLevel,
+  countByHour,
+  countByMonth,
+  countBySituation,
+  countByWard,
+  countByWeekday,
+  formatMonthLabel,
+} from '../utils/statsCalculator';
 
 const ACCENT = '#e53935';
 
 export function LandingPage() {
-  const { sightings, monthly, byWard, summary } = useBearStats();
+  const { sightings } = useBearStats();
+  const {
+    filters,
+    options,
+    filtered,
+    toggleMonth,
+    toggleWard,
+    toggleDangerLevel,
+    clearFilters,
+    hasActiveFilters,
+  } = useBearFilter(sightings);
 
-  const recentSightings = sightings.slice(0, 6);
+  // フィルタ適用後のデータで統計を再計算
+  const stats = useMemo(() => {
+    return {
+      monthly: countByMonth(filtered),
+      byWard: countByWard(filtered),
+      byHour: countByHour(filtered),
+      byDangerLevel: countByDangerLevel(filtered),
+      bySituation: countBySituation(filtered),
+      byWeekday: countByWeekday(filtered),
+      summary: calculateSummary(filtered),
+    };
+  }, [filtered]);
+
+  const { monthly, byWard, byHour, byDangerLevel, bySituation, byWeekday, summary } = stats;
+
+  const recentSightings = filtered.slice(0, 6);
 
   const monthlyData = monthly.map((m) => ({
     ...m,
@@ -52,9 +90,9 @@ export function LandingPage() {
           札幌市ヒグマ出没マップ
         </h1>
         <p style={{ fontSize: '15px', color: '#888', lineHeight: 1.8, marginBottom: '32px' }}>
-          ヒグマ出没地点と周辺の建物分布を3D地図で可視化。
+          ヒグマ出没データを統計・分析して可視化。
           <br />
-          出没エリアの空間的特徴を把握できます。
+          出没の傾向とパターンを把握できます。
         </p>
         <Link
           to="/map"
@@ -116,6 +154,131 @@ export function LandingPage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Filter */}
+      <section style={{ padding: '0 24px 40px', maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ background: '#111', borderRadius: '8px', padding: '20px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '16px',
+            }}
+          >
+            <h3
+              style={{
+                fontSize: '12px',
+                color: '#666',
+                letterSpacing: '0.05em',
+              }}
+            >
+              フィルタ
+              {hasActiveFilters && (
+                <span style={{ color: ACCENT, marginLeft: '8px' }}>
+                  ({filtered.length}/{sightings.length}件)
+                </span>
+              )}
+            </h3>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #333',
+                  color: '#888',
+                  padding: '4px 12px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                }}
+              >
+                クリア
+              </button>
+            )}
+          </div>
+
+          {/* Month Filter */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontSize: '11px', color: '#555', marginBottom: '8px' }}>月</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {options.months.map((month) => (
+                <button
+                  key={month}
+                  type="button"
+                  onClick={() => toggleMonth(month)}
+                  style={{
+                    background: filters.months.includes(month) ? ACCENT : '#222',
+                    border: 'none',
+                    color: filters.months.includes(month) ? '#fff' : '#888',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {formatMonthLabel(month)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Ward Filter */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontSize: '11px', color: '#555', marginBottom: '8px' }}>区</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {options.wards.map((ward) => (
+                <button
+                  key={ward}
+                  type="button"
+                  onClick={() => toggleWard(ward)}
+                  style={{
+                    background: filters.wards.includes(ward) ? ACCENT : '#222',
+                    border: 'none',
+                    color: filters.wards.includes(ward) ? '#fff' : '#888',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {ward}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Danger Level Filter */}
+          <div>
+            <div style={{ fontSize: '11px', color: '#555', marginBottom: '8px' }}>危険度</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {[
+                { level: 'high', label: '高', color: '#e53935' },
+                { level: 'medium', label: '中', color: '#f59e0b' },
+                { level: 'low', label: '低', color: '#22c55e' },
+              ].map((item) => (
+                <button
+                  key={item.level}
+                  type="button"
+                  onClick={() => toggleDangerLevel(item.level)}
+                  style={{
+                    background: filters.dangerLevels.includes(item.level) ? item.color : '#222',
+                    border: 'none',
+                    color: filters.dangerLevels.includes(item.level) ? '#fff' : '#888',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -205,6 +368,217 @@ export function LandingPage() {
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} name="件数">
                   {byWard.map((entry, index) => (
                     <Cell key={entry.ward} fill={index === 0 ? ACCENT : '#333'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Additional Charts Row */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '24px',
+            marginTop: '24px',
+          }}
+        >
+          {/* Hourly Chart */}
+          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+            <h3
+              style={{
+                fontSize: '12px',
+                color: '#666',
+                marginBottom: '20px',
+                letterSpacing: '0.05em',
+              }}
+            >
+              時間帯別
+            </h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={byHour} barSize={24}>
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#555' }}
+                />
+                <YAxis hide />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1a1a',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                  }}
+                  labelStyle={{ color: '#888' }}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]} name="件数">
+                  {byHour.map((entry) => {
+                    const maxCount = Math.max(...byHour.map((h) => h.count));
+                    return (
+                      <Cell key={entry.hour} fill={entry.count === maxCount ? ACCENT : '#333'} />
+                    );
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Danger Level Chart */}
+          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+            <h3
+              style={{
+                fontSize: '12px',
+                color: '#666',
+                marginBottom: '20px',
+                letterSpacing: '0.05em',
+              }}
+            >
+              危険度別
+            </h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie
+                  data={byDangerLevel.map((d) => ({
+                    name: d.label,
+                    value: d.count,
+                    color: d.color,
+                  }))}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={2}
+                >
+                  {byDangerLevel.map((entry) => (
+                    <Cell key={entry.level} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1a1a',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div
+              style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '8px' }}
+            >
+              {byDangerLevel.map((entry) => (
+                <div
+                  key={entry.level}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: entry.color,
+                    }}
+                  />
+                  <span style={{ fontSize: '11px', color: '#888' }}>
+                    {entry.label} ({entry.count})
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Third Charts Row */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '24px',
+            marginTop: '24px',
+          }}
+        >
+          {/* Situation Chart */}
+          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+            <h3
+              style={{
+                fontSize: '12px',
+                color: '#666',
+                marginBottom: '20px',
+                letterSpacing: '0.05em',
+              }}
+            >
+              状況タイプ別
+            </h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={bySituation} layout="vertical" barSize={16}>
+                <XAxis type="number" hide />
+                <YAxis
+                  type="category"
+                  dataKey="category"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: '#888' }}
+                  width={50}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1a1a',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                  }}
+                  labelStyle={{ color: '#888' }}
+                />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]} name="件数">
+                  {bySituation.map((entry, index) => (
+                    <Cell key={entry.category} fill={index === 0 ? ACCENT : '#333'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Weekday Chart */}
+          <div style={{ background: '#111', borderRadius: '8px', padding: '24px' }}>
+            <h3
+              style={{
+                fontSize: '12px',
+                color: '#666',
+                marginBottom: '20px',
+                letterSpacing: '0.05em',
+              }}
+            >
+              曜日別
+            </h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={byWeekday} barSize={24}>
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#555' }}
+                />
+                <YAxis hide />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1a1a',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                  }}
+                  labelStyle={{ color: '#888' }}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]} name="件数">
+                  {byWeekday.map((entry) => (
+                    <Cell
+                      key={entry.label}
+                      fill={entry.weekday === 0 || entry.weekday === 6 ? '#f59e0b' : '#333'}
+                    />
                   ))}
                 </Bar>
               </BarChart>

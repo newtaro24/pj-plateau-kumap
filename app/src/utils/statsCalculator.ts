@@ -1,4 +1,13 @@
-import type { BearSighting, MonthlyData, SummaryStats, WardData } from '../types';
+import type {
+  BearSighting,
+  DangerLevelData,
+  HourlyData,
+  MonthlyData,
+  SituationData,
+  SummaryStats,
+  WardData,
+  WeekdayData,
+} from '../types';
 
 export function countByMonth(sightings: BearSighting[]): MonthlyData[] {
   const counts = new Map<string, number>();
@@ -48,4 +57,112 @@ export function calculateSummary(sightings: BearSighting[]): SummaryStats {
 export function formatMonthLabel(month: string): string {
   const [, m] = month.split('-');
   return `${Number.parseInt(m, 10)}月`;
+}
+
+export function countByHour(sightings: BearSighting[]): HourlyData[] {
+  const timeRanges = [
+    { hour: '0-3', label: '深夜', min: 0, max: 3 },
+    { hour: '4-6', label: '早朝', min: 4, max: 6 },
+    { hour: '7-9', label: '朝', min: 7, max: 9 },
+    { hour: '10-12', label: '午前', min: 10, max: 12 },
+    { hour: '13-15', label: '午後', min: 13, max: 15 },
+    { hour: '16-18', label: '夕方', min: 16, max: 18 },
+    { hour: '19-21', label: '夜', min: 19, max: 21 },
+    { hour: '22-24', label: '深夜', min: 22, max: 24 },
+  ];
+
+  const counts = new Map<string, number>();
+  for (const r of timeRanges) {
+    counts.set(r.hour, 0);
+  }
+
+  for (const sighting of sightings) {
+    const time = sighting.properties.time;
+    if (time === '不明' || !time) continue;
+
+    const hour = Number.parseInt(time.split(':')[0], 10);
+    const range = timeRanges.find((r) => hour >= r.min && hour <= r.max);
+    if (range) {
+      counts.set(range.hour, (counts.get(range.hour) || 0) + 1);
+    }
+  }
+
+  return timeRanges.map((r) => ({
+    hour: r.hour,
+    label: r.label,
+    count: counts.get(r.hour) || 0,
+  }));
+}
+
+export function countByDangerLevel(sightings: BearSighting[]): DangerLevelData[] {
+  const levelConfig = [
+    { level: 'high', label: '高', color: '#e53935' },
+    { level: 'medium', label: '中', color: '#f59e0b' },
+    { level: 'low', label: '低', color: '#22c55e' },
+  ];
+
+  const counts = new Map<string, number>();
+
+  for (const sighting of sightings) {
+    const level = sighting.properties.dangerLevel;
+    counts.set(level, (counts.get(level) || 0) + 1);
+  }
+
+  return levelConfig.map((c) => ({
+    ...c,
+    count: counts.get(c.level) || 0,
+  }));
+}
+
+export function countBySituation(sightings: BearSighting[]): SituationData[] {
+  const categorize = (situation: string): string => {
+    if (situation.includes('目撃')) return '目撃';
+    if (situation.includes('カメラ')) return 'カメラ';
+    if (situation.includes('駆除')) return '駆除';
+    if (
+      situation.includes('足跡') ||
+      situation.includes('フン') ||
+      situation.includes('堀り') ||
+      situation.includes('掘り') ||
+      situation.includes('被毛') ||
+      situation.includes('爪') ||
+      situation.includes('食痕') ||
+      situation.includes('枝折り')
+    ) {
+      return '痕跡';
+    }
+    return 'その他';
+  };
+
+  const counts = new Map<string, number>();
+
+  for (const sighting of sightings) {
+    const category = categorize(sighting.properties.situation);
+    counts.set(category, (counts.get(category) || 0) + 1);
+  }
+
+  const order = ['目撃', '痕跡', 'カメラ', '駆除', 'その他'];
+  return order
+    .filter((cat) => counts.has(cat))
+    .map((category) => ({
+      category,
+      count: counts.get(category) || 0,
+    }));
+}
+
+export function countByWeekday(sightings: BearSighting[]): WeekdayData[] {
+  const labels = ['日', '月', '火', '水', '木', '金', '土'];
+  const counts = new Array(7).fill(0);
+
+  for (const sighting of sightings) {
+    const date = new Date(sighting.properties.date);
+    const weekday = date.getDay();
+    counts[weekday]++;
+  }
+
+  return counts.map((count, weekday) => ({
+    weekday,
+    label: labels[weekday],
+    count,
+  }));
 }
