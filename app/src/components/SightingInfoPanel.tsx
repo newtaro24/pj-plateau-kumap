@@ -66,6 +66,8 @@ const closeButtonStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   transition: 'background-color 0.15s',
+  fontSize: '18px',
+  lineHeight: 1,
 };
 
 const contentStyle: React.CSSProperties = {
@@ -114,19 +116,9 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
           }}
+          aria-label="閉じる"
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#fff"
-            strokeWidth="2.5"
-            aria-hidden="true"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          ×
         </button>
       </div>
       <div style={contentStyle}>
