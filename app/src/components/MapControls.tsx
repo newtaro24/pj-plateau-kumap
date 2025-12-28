@@ -1,5 +1,5 @@
 import type { Viewer as CesiumViewer } from 'cesium';
-import { Cartesian3 } from 'cesium';
+import { Cartesian3, Math as CesiumMath } from 'cesium';
 import type { RefObject } from 'react';
 import { useState } from 'react';
 import type { CesiumComponentRef } from 'resium';
@@ -79,6 +79,38 @@ export function MapControls({ viewerRef }: MapControlsProps) {
     });
   };
 
+  const handleRotateLeft = () => {
+    const viewer = getViewer();
+    if (!viewer) return;
+    const camera = viewer.camera;
+    const currentHeading = camera.heading;
+    camera.flyTo({
+      destination: camera.positionWC,
+      orientation: {
+        heading: currentHeading - CesiumMath.toRadians(45),
+        pitch: camera.pitch,
+        roll: camera.roll,
+      },
+      duration: 0.3,
+    });
+  };
+
+  const handleRotateRight = () => {
+    const viewer = getViewer();
+    if (!viewer) return;
+    const camera = viewer.camera;
+    const currentHeading = camera.heading;
+    camera.flyTo({
+      destination: camera.positionWC,
+      orientation: {
+        heading: currentHeading + CesiumMath.toRadians(45),
+        pitch: camera.pitch,
+        roll: camera.roll,
+      },
+      duration: 0.3,
+    });
+  };
+
   const getButtonStyle = (buttonName: string) =>
     hoveredButton === buttonName ? buttonHoverStyle : buttonStyle;
 
@@ -104,6 +136,30 @@ export function MapControls({ viewerRef }: MapControlsProps) {
         title="ズームアウト"
       >
         −
+      </button>
+
+      <div style={{ height: '8px' }} />
+
+      <button
+        type="button"
+        style={getButtonStyle('rotateLeft')}
+        onClick={handleRotateLeft}
+        onMouseEnter={() => setHoveredButton('rotateLeft')}
+        onMouseLeave={() => setHoveredButton(null)}
+        title="左に回転"
+      >
+        ↺
+      </button>
+
+      <button
+        type="button"
+        style={getButtonStyle('rotateRight')}
+        onClick={handleRotateRight}
+        onMouseEnter={() => setHoveredButton('rotateRight')}
+        onMouseLeave={() => setHoveredButton(null)}
+        title="右に回転"
+      >
+        ↻
       </button>
     </div>
   );
