@@ -57,15 +57,15 @@ const titleStyle: React.CSSProperties = {
 const closeButtonStyle: React.CSSProperties = {
   width: '28px',
   height: '28px',
-  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
+  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
   borderRadius: '6px',
-  color: '#ccc',
+  color: '#fff',
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  transition: 'background-color 0.15s, color 0.15s',
+  transition: 'background-color 0.15s',
 };
 
 const contentStyle: React.CSSProperties = {
@@ -109,12 +109,10 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
           style={closeButtonStyle}
           onClick={onClose}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.color = '#fff';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.color = '#999';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
           }}
         >
           <svg
