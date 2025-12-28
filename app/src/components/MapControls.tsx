@@ -79,7 +79,7 @@ export function MapControls({ viewerRef }: MapControlsProps) {
     });
   };
 
-  // カメラの向きだけを変更（位置は固定）
+  // カメラの向きだけを変更（位置は固定、アニメーション付き）
   const handleRotate = (angleDegrees: number) => {
     const viewer = getViewer();
     if (!viewer) return;
@@ -87,12 +87,14 @@ export function MapControls({ viewerRef }: MapControlsProps) {
     const camera = viewer.camera;
     const newHeading = camera.heading + CesiumMath.toRadians(angleDegrees);
 
-    camera.setView({
+    camera.flyTo({
+      destination: camera.positionWC,
       orientation: {
         heading: newHeading,
         pitch: camera.pitch,
         roll: camera.roll,
       },
+      duration: 0.3,
     });
   };
 
