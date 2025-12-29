@@ -24,6 +24,7 @@ import { MapControls } from '../components/MapControls';
 import { SightingInfoPanel } from '../components/SightingInfoPanel';
 import bearSightingsData from '../data/bear_sightings_2025.json';
 import { useBearFilter } from '../hooks/useBearFilter';
+import { useIsMobile } from '../hooks/useIsMobile';
 import type { BearSighting } from '../types';
 import { categorizeSituation, SITUATION_CATEGORIES } from '../utils/statsCalculator';
 
@@ -33,6 +34,9 @@ const SITUATION_COLORS: Record<string, string> = {
   痕跡: '#7c9473', // 緑系（自然の痕跡）
   その他: '#8b7da8', // 紫グレー
 };
+
+// 3Dモデルのパス
+const BEAR_MODEL_URI = '/models/bear.glb';
 
 // Cesium ionのアクセストークンを設定
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
@@ -71,6 +75,7 @@ export function MapPage() {
   const showHeatmap = false; // ヒートマップは現在無効化
   const handlerRef = useRef<ScreenSpaceEventHandler | null>(null);
   const initialFlyDone = useRef(false);
+  const isMobile = useIsMobile();
 
   // フィルター機能
   const { filters, filtered, toggleSituation, clearFilters, hasActiveFilters } =
@@ -295,19 +300,42 @@ export function MapPage() {
           const category = categorizeSituation(situation);
           const markerColor = SITUATION_COLORS[category] || '#a1785b';
 
+          // ヒグマ確認カテゴリーは3Dモデル、それ以外はポイントマーカー
+          const use3DModel = category === 'ヒグマ確認';
+
           return (
             <Entity
               key={`bear-${date}-${time}-${ward}-${location}`}
               name={`bear:${originalIndex}`}
               position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
-              point={{
-                pixelSize: isSelected ? 16 : 10,
-                color: Color.fromCssColorString(markerColor),
-                outlineColor: Color.WHITE,
-                outlineWidth: isSelected ? 3 : 2,
-                heightReference: HeightReference.CLAMP_TO_GROUND,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY,
-              }}
+              point={
+                use3DModel
+                  ? undefined
+                  : {
+                      pixelSize: isSelected ? 16 : 10,
+                      color: Color.fromCssColorString(markerColor),
+                      outlineColor: Color.WHITE,
+                      outlineWidth: isSelected ? 3 : 2,
+                      heightReference: HeightReference.CLAMP_TO_GROUND,
+                      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    }
+              }
+              model={
+                use3DModel
+                  ? {
+                      uri: BEAR_MODEL_URI,
+                      scale: isSelected ? 15 : 10,
+                      minimumPixelSize: isSelected ? 48 : 32,
+                      maximumScale: 50,
+                      heightReference: HeightReference.CLAMP_TO_GROUND,
+                      silhouetteColor: isSelected ? Color.WHITE : undefined,
+                      silhouetteSize: isSelected ? 2 : 0,
+                      color: Color.fromCssColorString(markerColor),
+                      colorBlendMode: 2, // ColorBlendMode.MIX
+                      colorBlendAmount: 0.3,
+                    }
+                  : undefined
+              }
             />
           );
         })}
@@ -361,8 +389,9 @@ export function MapPage() {
         style={{
           position: 'absolute',
           top: '16px',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          left: isMobile ? '8px' : '50%',
+          right: isMobile ? '8px' : 'auto',
+          transform: isMobile ? 'none' : 'translateX(-50%)',
           zIndex: 1000,
           display: 'flex',
           flexDirection: 'column',

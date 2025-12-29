@@ -1,3 +1,4 @@
+import { useIsMobile } from '../hooks/useIsMobile';
 import type { BearSighting } from '../types';
 
 interface SightingInfoPanelProps {
@@ -93,6 +94,8 @@ const valueStyle: React.CSSProperties = {
 };
 
 export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingInfoPanelProps) {
+  const isMobile = useIsMobile();
+
   if (!sighting) return null;
 
   const { date, time, ward, location, situation } = sighting.properties;
@@ -100,8 +103,16 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
   const timeLabel = getTimeLabel(time);
   const weekdayLabel = getWeekdayLabel(date);
 
+  const mobilePanelStyle: React.CSSProperties = {
+    ...panelStyle,
+    left: '8px',
+    right: '8px',
+    width: 'auto',
+    maxWidth: 'calc(100vw - 16px)',
+  };
+
   return (
-    <div style={panelStyle}>
+    <div style={isMobile ? mobilePanelStyle : panelStyle}>
       <div style={headerStyle}>
         <div style={titleStyle}>
           <span>出没情報</span>

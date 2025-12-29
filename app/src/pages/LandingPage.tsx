@@ -131,7 +131,7 @@ export function LandingPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: '1px',
             background: '#27272a',
             borderRadius: '8px',
@@ -270,7 +270,13 @@ export function LandingPage() {
 
       {/* Charts */}
       <section style={{ padding: '0 24px 60px', maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+          }}
+        >
           {/* Monthly Chart */}
           <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '24px' }}>
             <h3
@@ -365,7 +371,7 @@ export function LandingPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '24px',
             marginTop: '24px',
           }}
