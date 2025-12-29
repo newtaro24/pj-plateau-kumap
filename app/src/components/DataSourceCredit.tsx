@@ -45,6 +45,17 @@ export function DataSourceCredit({
         </a>{' '}
         (国土交通省)
       </div>
+      <div style={{ fontSize: '10px', marginTop: '2px' }}>
+        <a
+          href="https://poly.pizza/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#88ccff', textDecoration: 'none' }}
+        >
+          Bear 3D Model
+        </a>{' '}
+        (Poly by Google, CC-BY 3.0)
+      </div>
     </div>
   );
 }

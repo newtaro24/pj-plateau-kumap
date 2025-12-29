@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const headerStyle: React.CSSProperties = {
   position: 'fixed',
@@ -64,16 +65,34 @@ const badgeStyle: React.CSSProperties = {
 };
 
 export function Header() {
+  const isMobile = useIsMobile();
+
+  const mobileLogoStyle: React.CSSProperties = {
+    ...logoStyle,
+    fontSize: '13px',
+  };
+
+  const mobileNavLinkStyle = (isActive: boolean): React.CSSProperties => ({
+    ...navLinkStyle(isActive),
+    padding: '6px 10px',
+    fontSize: '12px',
+  });
+
   return (
     <header style={headerStyle}>
       <div style={logoContainerStyle}>
-        <NavLink to="/" style={logoStyle}>
+        <NavLink to="/" style={isMobile ? mobileLogoStyle : logoStyle}>
           札幌市ヒグマ出没3Dマップ
         </NavLink>
       </div>
 
       <nav style={navStyle}>
-        <NavLink to="/" style={({ isActive }) => navLinkStyle(isActive)}>
+        <NavLink
+          to="/"
+          style={({ isActive }) =>
+            isMobile ? mobileNavLinkStyle(isActive) : navLinkStyle(isActive)
+          }
+        >
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <svg
               width="14"
@@ -92,7 +111,12 @@ export function Header() {
             統計
           </span>
         </NavLink>
-        <NavLink to="/map" style={({ isActive }) => navLinkStyle(isActive)}>
+        <NavLink
+          to="/map"
+          style={({ isActive }) =>
+            isMobile ? mobileNavLinkStyle(isActive) : navLinkStyle(isActive)
+          }
+        >
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <svg
               width="14"
@@ -112,18 +136,20 @@ export function Header() {
         </NavLink>
       </nav>
 
-      <div style={badgeStyle}>
-        <span
-          style={{
-            width: '6px',
-            height: '6px',
-            backgroundColor: '#a1785b',
-            borderRadius: '50%',
-            animation: 'pulse 2s infinite',
-          }}
-        />
-        PLATEAU 3D都市モデル
-      </div>
+      {!isMobile && (
+        <div style={badgeStyle}>
+          <span
+            style={{
+              width: '6px',
+              height: '6px',
+              backgroundColor: '#a1785b',
+              borderRadius: '50%',
+              animation: 'pulse 2s infinite',
+            }}
+          />
+          PLATEAU 3D都市モデル
+        </div>
+      )}
     </header>
   );
 }
