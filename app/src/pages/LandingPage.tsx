@@ -312,6 +312,7 @@ export function LandingPage() {
                     fontSize: '12px',
                   }}
                   labelStyle={{ color: '#888' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Area
                   type="monotone"
@@ -356,6 +357,7 @@ export function LandingPage() {
                     fontSize: '12px',
                   }}
                   labelStyle={{ color: '#888' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} name="件数">
                   {byWard.map((entry, index) => (
@@ -405,6 +407,7 @@ export function LandingPage() {
                     fontSize: '12px',
                   }}
                   labelStyle={{ color: '#888' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]} name="件数">
                   {byHour.map((entry) => {
@@ -449,6 +452,7 @@ export function LandingPage() {
                     fontSize: '12px',
                   }}
                   labelStyle={{ color: '#888' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} name="件数">
                   {bySituation.map((entry) => (
@@ -488,6 +492,7 @@ export function LandingPage() {
                     fontSize: '12px',
                   }}
                   labelStyle={{ color: '#888' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]} name="件数">
                   {byWeekday.map((entry) => (
