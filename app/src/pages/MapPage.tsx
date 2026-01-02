@@ -35,8 +35,11 @@ const SITUATION_COLORS: Record<string, string> = {
   その他: '#8b7da8', // 紫グレー
 };
 
-// 3Dモデルのパス
-const BEAR_MODEL_URI = '/models/bear.glb';
+// 3Dモデルのパス（カテゴリ別）
+const MODEL_URIS: Record<string, string> = {
+  ヒグマ確認: '/models/bear.glb',
+  痕跡: '/models/paw.glb',
+};
 
 // Cesium ionのアクセストークンを設定
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
@@ -300,8 +303,9 @@ export function MapPage() {
           const category = categorizeSituation(situation);
           const markerColor = SITUATION_COLORS[category] || '#a1785b';
 
-          // ヒグマ確認カテゴリーは3Dモデル、それ以外はポイントマーカー
-          const use3DModel = category === 'ヒグマ確認';
+          // モデルがあるカテゴリは3Dモデル、それ以外はポイントマーカー
+          const modelUri = MODEL_URIS[category];
+          const use3DModel = !!modelUri;
 
           return (
             <Entity
@@ -321,12 +325,12 @@ export function MapPage() {
                     }
               }
               model={
-                use3DModel
+                use3DModel && modelUri
                   ? {
-                      uri: BEAR_MODEL_URI,
-                      scale: isSelected ? 15 : 10,
-                      minimumPixelSize: isSelected ? 48 : 32,
-                      maximumScale: 50,
+                      uri: modelUri,
+                      scale: isSelected ? 3 : 2,
+                      minimumPixelSize: isSelected ? 24 : 16,
+                      maximumScale: 15,
                       heightReference: HeightReference.CLAMP_TO_GROUND,
                       silhouetteColor: isSelected ? Color.WHITE : undefined,
                       silhouetteSize: isSelected ? 2 : 0,
