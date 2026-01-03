@@ -3,6 +3,7 @@ import {
   BoundingSphere,
   Cartesian2,
   Cartesian3,
+  Cartographic,
   Math as CesiumMath,
   Color,
   defined,
@@ -14,6 +15,7 @@ import {
   JulianDate,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
+  sampleTerrainMostDetailed,
   Terrain,
   UrlTemplateImageryProvider,
 } from 'cesium';
@@ -197,19 +199,27 @@ export function MapPage() {
             const sighting = bearSightings[index];
             if (sighting) {
               setSelectedSighting(sighting);
-              // マーカーにカメラをフォーカス（lookAtでマーカーを画面中央に）
+              // マーカーにカメラをフォーカス（地形高さを考慮）
               const [lng, lat] = sighting.geometry.coordinates;
               const distance = 400; // マーカーからの距離(m)
               const pitchDegrees = -25; // カメラ角度(度)
-              const targetHeight = 50; // ターゲット高さ(m) - 地形の影響を軽減
-              const targetPosition = Cartesian3.fromDegrees(lng, lat, targetHeight);
-              cesiumViewer.camera.flyToBoundingSphere(new BoundingSphere(targetPosition, 0), {
-                offset: new HeadingPitchRange(
-                  0, // heading: 北向き
-                  CesiumMath.toRadians(pitchDegrees),
-                  distance,
-                ),
-                duration: 1.0,
+              const heightAboveTerrain = 30; // 地形からの高さ(m)
+
+              // 地形の高さを取得してカメラ位置を設定
+              const terrainProvider = cesiumViewer.terrainProvider;
+              const position = Cartographic.fromDegrees(lng, lat);
+              sampleTerrainMostDetailed(terrainProvider, [position]).then((updatedPositions) => {
+                const terrainHeight = updatedPositions[0].height || 0;
+                const targetHeight = terrainHeight + heightAboveTerrain;
+                const targetPosition = Cartesian3.fromDegrees(lng, lat, targetHeight);
+                cesiumViewer.camera.flyToBoundingSphere(new BoundingSphere(targetPosition, 0), {
+                  offset: new HeadingPitchRange(
+                    0, // heading: 北向き
+                    CesiumMath.toRadians(pitchDegrees),
+                    distance,
+                  ),
+                  duration: 1.0,
+                });
               });
               return;
             }
