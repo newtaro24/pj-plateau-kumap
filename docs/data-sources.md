@@ -68,6 +68,33 @@
 
 ---
 
+### 3. 3Dモデル（マーカー用）
+
+**データ名**: Bear, Bearclaw 3Dモデル
+**提供元**: Poly by Google
+**データソース**: [Poly Pizza](https://poly.pizza/)
+
+**ライセンス**: [クリエイティブ・コモンズ 表示 3.0（CC BY 3.0）](https://creativecommons.org/licenses/by/3.0/)
+
+**利用規約**:
+- 適切なクレジット表記が必要
+- 改変・商用利用可能
+- 再配布時もライセンス情報を明記
+
+**使用モデル**:
+| ファイル | モデル名 | 作者 | URL |
+|----------|---------|------|-----|
+| bear.glb | Bear | Poly by Google | https://poly.pizza/m/0PXWfxfb0Hu |
+| paw.glb | Bearclaw | Poly by Google | https://poly.pizza/m/apBo3J2oi67 |
+
+**クレジット表記**:
+```
+Bear by Poly by Google [CC-BY] via Poly Pizza
+Bearclaw by Poly by Google [CC-BY] via Poly Pizza
+```
+
+---
+
 ## 📝 データ利用のルール
 
 ### 本プロジェクトでの利用方針
@@ -99,5 +126,5 @@
 
 ---
 
-**最終更新**: 2025-11-14
+**最終更新**: 2026-01-02
 **確認者**: Claude Code

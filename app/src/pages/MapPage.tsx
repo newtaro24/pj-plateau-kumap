@@ -1,10 +1,13 @@
 import type { Viewer as CesiumViewer } from 'cesium';
 import {
+  BoundingSphere,
   Cartesian2,
   Cartesian3,
+  Cartographic,
   Math as CesiumMath,
   Color,
   defined,
+  HeadingPitchRange,
   HeightReference,
   ImageryLayer,
   Ion,
@@ -12,6 +15,7 @@ import {
   JulianDate,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
+  sampleTerrainMostDetailed,
   Terrain,
   UrlTemplateImageryProvider,
 } from 'cesium';
@@ -35,8 +39,34 @@ const SITUATION_COLORS: Record<string, string> = {
   その他: '#8b7da8', // 紫グレー
 };
 
-// 3Dモデルのパス
-const BEAR_MODEL_URI = '/models/bear.glb';
+// 3Dモデル設定
+// GLBモデルの元サイズは不明なため、経験的に求めた係数を使用
+// 目標: ヒグマは体長約2m、足跡は約30cm程度のサイズで表示
+const MODEL_CONFIG: Record<
+  string,
+  { uri: string; targetHeightMeters: number; baseScaleFactor: number; heightOffset: number }
+> = {
+  ヒグマ確認: {
+    uri: '/models/bear.glb',
+    targetHeightMeters: 2, // 実際のヒグマの体長（約2m）
+    baseScaleFactor: 0.01, // GLBモデル→1mに変換する経験的係数
+    heightOffset: 1, // 地面から浮かせる高さ(m)
+  },
+  痕跡: {
+    uri: '/models/paw.glb',
+    targetHeightMeters: 0.5, // 足跡サイズ（視認性のため少し大きめ）
+    baseScaleFactor: 0.01,
+    heightOffset: 0.3,
+  },
+};
+
+// スケール計算: 目標サイズ × 基本係数
+const getModelScale = (category: string, isSelected: boolean): number => {
+  const config = MODEL_CONFIG[category];
+  if (!config) return 1;
+  const baseScale = config.targetHeightMeters * config.baseScaleFactor;
+  return isSelected ? baseScale * 1.5 : baseScale;
+};
 
 // Cesium ionのアクセストークンを設定
 const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
@@ -169,18 +199,27 @@ export function MapPage() {
             const sighting = bearSightings[index];
             if (sighting) {
               setSelectedSighting(sighting);
-              // マーカーにカメラをフォーカス
+              // マーカーにカメラをフォーカス（地形高さを考慮）
               const [lng, lat] = sighting.geometry.coordinates;
-              const cameraHeight = 800;
-              const latOffset = 0.012;
-              cesiumViewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(lng, lat - latOffset, cameraHeight),
-                orientation: {
-                  heading: 0,
-                  pitch: CesiumMath.toRadians(-30),
-                  roll: 0,
-                },
-                duration: 1.0,
+              const distance = 400; // マーカーからの距離(m)
+              const pitchDegrees = -25; // カメラ角度(度)
+              const heightAboveTerrain = 30; // 地形からの高さ(m)
+
+              // 地形の高さを取得してカメラ位置を設定
+              const terrainProvider = cesiumViewer.terrainProvider;
+              const position = Cartographic.fromDegrees(lng, lat);
+              sampleTerrainMostDetailed(terrainProvider, [position]).then((updatedPositions) => {
+                const terrainHeight = updatedPositions[0].height || 0;
+                const targetHeight = terrainHeight + heightAboveTerrain;
+                const targetPosition = Cartesian3.fromDegrees(lng, lat, targetHeight);
+                cesiumViewer.camera.flyToBoundingSphere(new BoundingSphere(targetPosition, 0), {
+                  offset: new HeadingPitchRange(
+                    0, // heading: 北向き
+                    CesiumMath.toRadians(pitchDegrees),
+                    distance,
+                  ),
+                  duration: 1.0,
+                });
               });
               return;
             }
@@ -300,16 +339,20 @@ export function MapPage() {
           const category = categorizeSituation(situation);
           const markerColor = SITUATION_COLORS[category] || '#a1785b';
 
-          // ヒグマ確認カテゴリーは3Dモデル、それ以外はポイントマーカー
-          const use3DModel = category === 'ヒグマ確認';
+          // 選択時のみ3Dモデル表示、それ以外はポイントマーカー（引きで見やすくするため）
+          const modelConfig = MODEL_CONFIG[category];
+          const show3DModel = isSelected && !!modelConfig;
+
+          // 3Dモデル表示時は高さオフセットを適用
+          const heightOffset = show3DModel && modelConfig ? modelConfig.heightOffset : 0;
 
           return (
             <Entity
               key={`bear-${date}-${time}-${ward}-${location}`}
               name={`bear:${originalIndex}`}
-              position={Cartesian3.fromDegrees(coordinates[0], coordinates[1])}
+              position={Cartesian3.fromDegrees(coordinates[0], coordinates[1], heightOffset)}
               point={
-                use3DModel
+                show3DModel
                   ? undefined
                   : {
                       pixelSize: isSelected ? 16 : 10,
@@ -321,15 +364,15 @@ export function MapPage() {
                     }
               }
               model={
-                use3DModel
+                show3DModel && modelConfig
                   ? {
-                      uri: BEAR_MODEL_URI,
-                      scale: isSelected ? 15 : 10,
-                      minimumPixelSize: isSelected ? 48 : 32,
-                      maximumScale: 50,
-                      heightReference: HeightReference.CLAMP_TO_GROUND,
-                      silhouetteColor: isSelected ? Color.WHITE : undefined,
-                      silhouetteSize: isSelected ? 2 : 0,
+                      uri: modelConfig.uri,
+                      scale: getModelScale(category, true),
+                      minimumPixelSize: 24,
+                      maximumScale: getModelScale(category, true) * 50,
+                      heightReference: HeightReference.RELATIVE_TO_GROUND,
+                      silhouetteColor: Color.WHITE,
+                      silhouetteSize: 2,
                       color: Color.fromCssColorString(markerColor),
                       colorBlendMode: 2, // ColorBlendMode.MIX
                       colorBlendAmount: 0.3,
