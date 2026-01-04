@@ -73,7 +73,15 @@ export function LandingPage() {
 
   const { monthly, byWard, byHour, bySituation, byWeekday, summary } = stats;
 
-  const recentSightings = filtered.slice(0, 6);
+  const recentSightings = useMemo(() => {
+    return [...filtered]
+      .sort((a, b) => {
+        const dateA = a.properties.date + (a.properties.time || '');
+        const dateB = b.properties.date + (b.properties.time || '');
+        return dateB.localeCompare(dateA);
+      })
+      .slice(0, 6);
+  }, [filtered]);
 
   const monthlyData = monthly.map((m) => ({
     ...m,
