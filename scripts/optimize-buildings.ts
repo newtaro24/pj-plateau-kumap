@@ -12,7 +12,7 @@ import fs from 'fs';
 import path from 'path';
 
 // ヒグマ出没データを読み込み
-const bearDataPath = path.join(__dirname, '../app/src/data/bear_sightings_2025.json');
+const bearDataPath = path.join(__dirname, '../app/src/data/bear_sightings.json');
 const bearData = JSON.parse(fs.readFileSync(bearDataPath, 'utf-8'));
 
 // 建物データを読み込み

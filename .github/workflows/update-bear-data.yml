@@ -32,12 +32,12 @@ jobs:
         working-directory: scripts
 
       - name: Format JSON with Biome
-        run: npx biome format --write app/src/data/bear_sightings_2025.json
+        run: npx biome format --write app/src/data/bear_sightings.json
 
       - name: Check for changes
         id: check
         run: |
-          if git diff --quiet app/src/data/bear_sightings_2025.json; then
+          if git diff --quiet app/src/data/bear_sightings.json; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -48,6 +48,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add app/src/data/bear_sightings_2025.json
+          git add app/src/data/bear_sightings.json
           git commit -m "update bear sighting data $(date +'%Y-%m-%d')"
           git push
