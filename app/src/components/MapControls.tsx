@@ -3,6 +3,7 @@ import { Cartesian3, Math as CesiumMath } from 'cesium';
 import type { RefObject } from 'react';
 import { useState } from 'react';
 import type { CesiumComponentRef } from 'resium';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface MapControlsProps {
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
@@ -55,6 +56,7 @@ export function MapControls({
   currentDateTime,
 }: MapControlsProps) {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const getViewer = () => viewerRef.current?.cesiumElement ?? null;
 
@@ -117,11 +119,39 @@ export function MapControls({
   const getButtonStyle = (buttonName: string) =>
     hoveredButton === buttonName ? buttonHoverStyle : buttonStyle;
 
+  // モバイル用のコンテナスタイル（上部固定、小さめボタン）
+  const mobileContainerStyle: React.CSSProperties = {
+    ...controlsContainerStyle,
+    top: '80px', // フィルターの下に配置
+    transform: 'none',
+    right: '8px',
+    gap: '6px',
+  };
+
+  const mobileButtonStyle: React.CSSProperties = {
+    ...buttonStyle,
+    width: '36px',
+    height: '36px',
+    fontSize: '18px',
+  };
+
+  const getMobileButtonStyle = (buttonName: string) => {
+    if (hoveredButton === buttonName) {
+      return { ...mobileButtonStyle, backgroundColor: 'rgba(80, 80, 80, 0.95)' };
+    }
+    return mobileButtonStyle;
+  };
+
+  const mobileButtonActiveStyle: React.CSSProperties = {
+    ...mobileButtonStyle,
+    backgroundColor: '#a1785b',
+  };
+
   return (
-    <div style={controlsContainerStyle}>
+    <div style={isMobile ? mobileContainerStyle : controlsContainerStyle}>
       <button
         type="button"
-        style={getButtonStyle('zoomIn')}
+        style={isMobile ? getMobileButtonStyle('zoomIn') : getButtonStyle('zoomIn')}
         onClick={handleZoomIn}
         onMouseEnter={() => setHoveredButton('zoomIn')}
         onMouseLeave={() => setHoveredButton(null)}
@@ -132,7 +162,7 @@ export function MapControls({
 
       <button
         type="button"
-        style={getButtonStyle('zoomOut')}
+        style={isMobile ? getMobileButtonStyle('zoomOut') : getButtonStyle('zoomOut')}
         onClick={handleZoomOut}
         onMouseEnter={() => setHoveredButton('zoomOut')}
         onMouseLeave={() => setHoveredButton(null)}
@@ -141,11 +171,11 @@ export function MapControls({
         −
       </button>
 
-      <div style={{ height: '8px' }} />
+      <div style={{ height: isMobile ? '4px' : '8px' }} />
 
       <button
         type="button"
-        style={getButtonStyle('rotateLeft')}
+        style={isMobile ? getMobileButtonStyle('rotateLeft') : getButtonStyle('rotateLeft')}
         onClick={handleRotateLeft}
         onMouseEnter={() => setHoveredButton('rotateLeft')}
         onMouseLeave={() => setHoveredButton(null)}
@@ -156,7 +186,7 @@ export function MapControls({
 
       <button
         type="button"
-        style={getButtonStyle('rotateRight')}
+        style={isMobile ? getMobileButtonStyle('rotateRight') : getButtonStyle('rotateRight')}
         onClick={handleRotateRight}
         onMouseEnter={() => setHoveredButton('rotateRight')}
         onMouseLeave={() => setHoveredButton(null)}
@@ -167,10 +197,18 @@ export function MapControls({
 
       {onToggleLighting && (
         <>
-          <div style={{ height: '8px' }} />
+          <div style={{ height: isMobile ? '4px' : '8px' }} />
           <button
             type="button"
-            style={lightingEnabled ? buttonActiveStyle : getButtonStyle('lighting')}
+            style={
+              lightingEnabled
+                ? isMobile
+                  ? mobileButtonActiveStyle
+                  : buttonActiveStyle
+                : isMobile
+                  ? getMobileButtonStyle('lighting')
+                  : getButtonStyle('lighting')
+            }
             onClick={onToggleLighting}
             onMouseEnter={() => setHoveredButton('lighting')}
             onMouseLeave={() => setHoveredButton(null)}
@@ -178,7 +216,7 @@ export function MapControls({
           >
             ☀
           </button>
-          {lightingEnabled && currentDateTime && (
+          {lightingEnabled && currentDateTime && !isMobile && (
             <div
               style={{
                 backgroundColor: 'rgba(48, 48, 48, 0.95)',

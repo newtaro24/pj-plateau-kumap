@@ -10,6 +10,7 @@ export interface BearSighting {
     ward: string;
     location: string;
     situation: string;
+    dangerLevel?: string;
   };
 }
 

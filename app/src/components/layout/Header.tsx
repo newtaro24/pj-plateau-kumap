@@ -82,7 +82,7 @@ export function Header() {
     <header style={headerStyle}>
       <div style={logoContainerStyle}>
         <NavLink to="/" style={isMobile ? mobileLogoStyle : logoStyle}>
-          札幌市ヒグマ出没3Dマップ
+          {isMobile ? 'ヒグマ3Dマップ' : '札幌市ヒグマ出没3Dマップ'}
         </NavLink>
       </div>
 
@@ -93,10 +93,10 @@ export function Header() {
             isMobile ? mobileNavLinkStyle(isActive) : navLinkStyle(isActive)
           }
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '6px' }}>
             <svg
-              width="14"
-              height="14"
+              width={isMobile ? '12' : '14'}
+              height={isMobile ? '12' : '14'}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -117,10 +117,10 @@ export function Header() {
             isMobile ? mobileNavLinkStyle(isActive) : navLinkStyle(isActive)
           }
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '6px' }}>
             <svg
-              width="14"
-              height="14"
+              width={isMobile ? '12' : '14'}
+              height={isMobile ? '12' : '14'}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -131,7 +131,7 @@ export function Header() {
               <line x1="8" y1="2" x2="8" y2="18" />
               <line x1="16" y1="6" x2="16" y2="22" />
             </svg>
-            3Dマップ
+            {isMobile ? 'マップ' : '3Dマップ'}
           </span>
         </NavLink>
       </nav>
