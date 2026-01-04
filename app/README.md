@@ -54,7 +54,7 @@ VITE_CESIUM_ASSET_ID_NISHI=your_nishi_asset_id
 npm run dev
 ```
 
-ブラウザで http://localhost:5173 を開いてください。
+ブラウザで http://localhost:5183 を開いてください。
 
 ### 利用可能なスクリプト
 
