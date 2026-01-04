@@ -11,7 +11,6 @@ import {
   HeightReference,
   ImageryLayer,
   Ion,
-  IonResource,
   JulianDate,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
@@ -84,6 +83,29 @@ const LIGHT_BASE_COLOR = Color.fromCssColorString('#f5f5f5');
 
 // Cesium World Terrain（地形データ）を使用
 const worldTerrain = Terrain.fromWorldTerrain();
+
+// PLATEAU配信サービス 札幌市全10区の3D Tiles URL
+// https://github.com/Project-PLATEAU/plateau-streaming-tutorial
+const PLATEAU_SAPPORO_TILES = {
+  chuo: 'https://assets.cms.plateau.reearth.io/assets/a6/031403-b4dc-4d5d-8c2f-50361fedc764/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01101_chuo-ku_lod1/tileset.json',
+  kita: 'https://assets.cms.plateau.reearth.io/assets/b6/2fe16c-44c8-4a42-8138-82c971cd0e2c/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01102_kita-ku_lod1/tileset.json',
+  higashi:
+    'https://assets.cms.plateau.reearth.io/assets/98/2f5131-ad3c-4551-943a-3607ed6afa3c/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01103_higashi-ku_lod1/tileset.json',
+  shiroishi:
+    'https://assets.cms.plateau.reearth.io/assets/a2/2d4d91-f50a-4fd8-a055-771bf1495095/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01104_shiroishi-ku_lod1/tileset.json',
+  toyohira:
+    'https://assets.cms.plateau.reearth.io/assets/02/d7a24f-76db-4295-844e-c667831fea43/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01105_toyohira-ku_lod1/tileset.json',
+  minami:
+    'https://assets.cms.plateau.reearth.io/assets/aa/5f71a5-4442-4dcb-80bb-a022adbe409c/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01106_minami-ku_lod1/tileset.json',
+  nishi:
+    'https://assets.cms.plateau.reearth.io/assets/e1/e6b234-82bd-4311-b72b-5920b6dfc569/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01107_nishi-ku_lod1/tileset.json',
+  atsubetsu:
+    'https://assets.cms.plateau.reearth.io/assets/26/96d6b5-1c35-40e3-bb79-c5b53f15405a/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01108_atsubetsu-ku_lod1/tileset.json',
+  teine:
+    'https://assets.cms.plateau.reearth.io/assets/70/811042-e748-47a7-9f3e-420003f445b9/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01109_teine-ku_lod1/tileset.json',
+  kiyota:
+    'https://assets.cms.plateau.reearth.io/assets/1d/c2a380-16cd-4a40-b860-0889727d752c/01100_sapporo-shi_city_2020_citygml_7_op_bldg_3dtiles_01110_kiyota-ku_lod1/tileset.json',
+};
 
 // ヒグマ出没データ（コンポーネント外で定義）
 const bearSightings = bearSightingsData.features as BearSighting[];
@@ -301,26 +323,10 @@ export function MapPage() {
           once={true}
         />
 
-        {/* PLATEAU 3D都市モデル（札幌市中央区） */}
-        {import.meta.env.VITE_CESIUM_ASSET_ID_CHUO && (
-          <Cesium3DTileset
-            url={IonResource.fromAssetId(Number(import.meta.env.VITE_CESIUM_ASSET_ID_CHUO))}
-          />
-        )}
-
-        {/* PLATEAU 3D都市モデル（札幌市南区） */}
-        {import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI && (
-          <Cesium3DTileset
-            url={IonResource.fromAssetId(Number(import.meta.env.VITE_CESIUM_ASSET_ID_MINAMI))}
-          />
-        )}
-
-        {/* PLATEAU 3D都市モデル（札幌市西区） */}
-        {import.meta.env.VITE_CESIUM_ASSET_ID_NISHI && (
-          <Cesium3DTileset
-            url={IonResource.fromAssetId(Number(import.meta.env.VITE_CESIUM_ASSET_ID_NISHI))}
-          />
-        )}
+        {/* PLATEAU 3D都市モデル（札幌市全10区） */}
+        {Object.entries(PLATEAU_SAPPORO_TILES).map(([ward, url]) => (
+          <Cesium3DTileset key={ward} url={url} />
+        ))}
 
         {/* ヒグマ出没マーカー（フィルター適用済み） */}
         {filtered.map((sighting) => {
