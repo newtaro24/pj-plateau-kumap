@@ -9,4 +9,7 @@ export default defineConfig({
   json: {
     stringify: false,
   },
+  server: {
+    port: 5183,
+  },
 });
