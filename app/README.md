@@ -88,7 +88,7 @@ app/
 │   ├── components/      # Reactコンポーネント
 │   │   └── DataSourceCredit.tsx
 │   ├── data/           # データファイル
-│   │   └── bear_sightings_2025.json
+│   │   └── bear_sightings.json
 │   ├── App.tsx         # メインアプリケーションコンポーネント
 │   ├── App.css         # アプリケーションスタイル
 │   ├── main.tsx        # エントリーポイント
@@ -120,7 +120,7 @@ CesiumのReactラッパーライブラリで、Cesiumのコンポーネントを
 ### データについて
 
 **ヒグマ出没データ**:
-- ファイル: `src/data/bear_sightings_2025.json`
+- ファイル: `src/data/bear_sightings.json`
 - 出典: [札幌市オープンデータ](https://ckan.pf-sapporo.jp/dataset/sapporo_bear_appearance)
 - ライセンス: CC BY 4.0
 

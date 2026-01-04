@@ -120,12 +120,12 @@ npm run check    # 型チェック + リント
 npm run convert-data <CSVファイルのパス>
 
 # 例：
-npm run convert-data ./bear_sightings_2025.csv
+npm run convert-data ./bear_sightings.csv
 ```
 
 **変換処理**:
 - 入力: CSV形式のヒグマ出没データ（日付、時刻、区、出没場所、緯度、経度、状況）
-- 出力: `app/src/data/bear_sightings_2025.json` (GeoJSON形式)
+- 出力: `app/src/data/bear_sightings.json` (GeoJSON形式)
 - 危険度判定: 状況フィールドから自動で危険度を判定（目撃=high、足跡/フン=medium、その他=low）
 
 **PLATEAU 3D都市モデル**:

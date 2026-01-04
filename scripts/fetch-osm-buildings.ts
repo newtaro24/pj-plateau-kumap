@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 
 // ヒグマ出没データを読み込んで範囲を計算
-const bearDataPath = path.join(__dirname, '../app/src/data/bear_sightings_2025.json');
+const bearDataPath = path.join(__dirname, '../app/src/data/bear_sightings.json');
 const bearData = JSON.parse(fs.readFileSync(bearDataPath, 'utf-8'));
 
 interface Feature {

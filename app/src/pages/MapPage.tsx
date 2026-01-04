@@ -26,7 +26,7 @@ import { CameraFlyTo, Cesium3DTileset, EllipseGraphics, Entity, Viewer } from 'r
 import { DataSourceCredit } from '../components/DataSourceCredit';
 import { MapControls } from '../components/MapControls';
 import { SightingInfoPanel } from '../components/SightingInfoPanel';
-import bearSightingsData from '../data/bear_sightings_2025.json';
+import bearSightingsData from '../data/bear_sightings.json';
 import { useBearFilter } from '../hooks/useBearFilter';
 import { useIsMobile } from '../hooks/useIsMobile';
 import type { BearSighting } from '../types';

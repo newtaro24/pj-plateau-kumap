@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import bearSightingsData from '../data/bear_sightings_2025.json';
+import bearSightingsData from '../data/bear_sightings.json';
 import type { BearSighting } from '../types';
 import {
   calculateSummary,
