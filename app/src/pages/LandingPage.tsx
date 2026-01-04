@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { useBearFilter } from '../hooks/useBearFilter';
 import { useBearStats } from '../hooks/useBearStats';
+import { useIsMobile } from '../hooks/useIsMobile';
 import {
   calculateSummary,
   countByHour,
@@ -34,6 +35,7 @@ const SITUATION_COLORS: Record<string, string> = {
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { sightings } = useBearStats();
   const { filters, filtered, toggleMonth, toggleWard, clearFilters, hasActiveFilters } =
     useBearFilter(sightings);
@@ -83,7 +85,7 @@ export function LandingPage() {
       {/* Hero */}
       <section
         style={{
-          padding: '80px 24px 60px',
+          padding: isMobile ? '48px 16px 40px' : '80px 24px 60px',
           maxWidth: '800px',
           margin: '0 auto',
         }}
@@ -127,11 +129,19 @@ export function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section style={{ padding: '0 24px 60px', maxWidth: '800px', margin: '0 auto' }}>
+      <section
+        style={{
+          padding: isMobile ? '0 16px 40px' : '0 24px 60px',
+          maxWidth: '800px',
+          margin: '0 auto',
+        }}
+      >
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gridTemplateColumns: isMobile
+              ? 'repeat(2, 1fr)'
+              : 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: '1px',
             background: '#27272a',
             borderRadius: '8px',
@@ -173,7 +183,13 @@ export function LandingPage() {
       </section>
 
       {/* Filter */}
-      <section style={{ padding: '0 24px 40px', maxWidth: '800px', margin: '0 auto' }}>
+      <section
+        style={{
+          padding: isMobile ? '0 16px 32px' : '0 24px 40px',
+          maxWidth: '800px',
+          margin: '0 auto',
+        }}
+      >
         <div style={{ background: '#1f1f23', borderRadius: '8px', padding: '20px' }}>
           <div
             style={{
@@ -269,12 +285,18 @@ export function LandingPage() {
       </section>
 
       {/* Charts */}
-      <section style={{ padding: '0 24px 60px', maxWidth: '800px', margin: '0 auto' }}>
+      <section
+        style={{
+          padding: isMobile ? '0 16px 48px' : '0 24px 60px',
+          maxWidth: '800px',
+          margin: '0 auto',
+        }}
+      >
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: isMobile ? '16px' : '24px',
           }}
         >
           {/* Monthly Chart */}
@@ -373,9 +395,9 @@ export function LandingPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px',
-            marginTop: '24px',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: isMobile ? '16px' : '24px',
+            marginTop: isMobile ? '16px' : '24px',
           }}
         >
           {/* Hourly Chart */}
@@ -509,7 +531,13 @@ export function LandingPage() {
       </section>
 
       {/* Recent List */}
-      <section style={{ padding: '0 24px 80px', maxWidth: '800px', margin: '0 auto' }}>
+      <section
+        style={{
+          padding: isMobile ? '0 16px 60px' : '0 24px 80px',
+          maxWidth: '800px',
+          margin: '0 auto',
+        }}
+      >
         <h3
           style={{
             fontSize: '12px',
@@ -524,6 +552,11 @@ export function LandingPage() {
           {recentSightings.map((sighting, index) => {
             const { date, time, ward, location } = sighting.properties;
             const [lng, lat] = sighting.geometry.coordinates;
+            // モバイル用に日付を短縮 (2025-01-04 → 1/4)
+            const shortDate = (() => {
+              const [, m, d] = date.split('-');
+              return `${Number.parseInt(m, 10)}/${Number.parseInt(d, 10)}`;
+            })();
             return (
               <button
                 type="button"
@@ -531,8 +564,9 @@ export function LandingPage() {
                 onClick={() => navigate(`/map?lat=${lat}&lng=${lng}`)}
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  padding: '16px 20px',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  alignItems: isMobile ? 'flex-start' : 'center',
+                  padding: isMobile ? '12px 16px' : '16px 20px',
                   borderBottom: index < recentSightings.length - 1 ? '1px solid #1a1a1a' : 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.15s',
@@ -540,6 +574,7 @@ export function LandingPage() {
                   border: 'none',
                   width: '100%',
                   textAlign: 'left',
+                  gap: isMobile ? '6px' : '0',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#27272a';
@@ -548,36 +583,76 @@ export function LandingPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                <div
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: ACCENT,
-                    marginRight: '16px',
-                    flexShrink: 0,
-                  }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: '13px',
-                      color: '#ccc',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {location}
-                  </div>
-                </div>
-                <div style={{ fontSize: '12px', color: '#555', marginLeft: '16px', flexShrink: 0 }}>
-                  {ward}
-                </div>
-                <div style={{ fontSize: '11px', color: '#444', marginLeft: '16px', flexShrink: 0 }}>
-                  {date}
-                </div>
-                <div style={{ marginLeft: '12px', color: '#444', fontSize: '14px' }}>→</div>
+                {isMobile ? (
+                  <>
+                    <div
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}
+                    >
+                      <div
+                        style={{
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: ACCENT,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div
+                        style={{
+                          fontSize: '13px',
+                          color: '#ccc',
+                          flex: 1,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {location}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#444' }}>→</div>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#555', marginLeft: '14px' }}>
+                      {ward} · {shortDate}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: ACCENT,
+                        marginRight: '16px',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: '13px',
+                          color: '#ccc',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {location}
+                      </div>
+                    </div>
+                    <div
+                      style={{ fontSize: '12px', color: '#555', marginLeft: '16px', flexShrink: 0 }}
+                    >
+                      {ward}
+                    </div>
+                    <div
+                      style={{ fontSize: '11px', color: '#444', marginLeft: '16px', flexShrink: 0 }}
+                    >
+                      {date}
+                    </div>
+                    <div style={{ marginLeft: '12px', color: '#444', fontSize: '14px' }}>→</div>
+                  </>
+                )}
               </button>
             );
           })}

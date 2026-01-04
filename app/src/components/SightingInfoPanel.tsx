@@ -107,8 +107,12 @@ export function SightingInfoPanel({ sighting, onClose, totalInWard }: SightingIn
     ...panelStyle,
     left: '8px',
     right: '8px',
+    top: 'auto',
+    bottom: '16px',
     width: 'auto',
     maxWidth: 'calc(100vw - 16px)',
+    maxHeight: 'calc(100vh - 180px)',
+    overflowY: 'auto',
   };
 
   return (
