@@ -12,6 +12,7 @@ PLATEAUの公式チュートリアルから抽出した開発に必要な知識�
 4. [CityGMLの構造](#4-citygmlの構造)
 5. [PLATEAU VIEW](#5-plateau-view)
 6. [CesiumJSでの活用](#6-cesiumjsでの活用)
+6.5. [PLATEAU配信サービス vs Cesium ion](#65-plateau配信サービス-vs-cesium-ion) ⭐ New
 7. [CesiumJS + React統合](#7-cesiumjs--react統合)
 8. [データ変換](#8-データ変換)
 9. [地理空間情報の紐づけ](#9-地理空間情報の紐づけ)
@@ -257,6 +258,75 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
 
 - **3D Tiles URL検索**: https://api.plateauview.mlit.go.jp/datacatalog/plateau-datasets
 - **オルソ画像**: plateau-ortho-2023 (zoom 19まで、約30cm精度)
+
+---
+
+## 6.5. PLATEAU配信サービス vs Cesium ion
+
+### 概要
+
+PLATEAUデータを3D Tilesとして利用する方法は主に2つある。
+
+| 方式 | 説明 |
+|------|------|
+| **PLATEAU配信サービス** | 国交省が提供する無料の配信サービス。公式データをそのまま利用。 |
+| **Cesium ion** | Cesiumが提供するクラウドホスティング。自分のデータをアップロード。 |
+
+### 比較表
+
+| 観点 | PLATEAU配信サービス | Cesium ion |
+|------|---------------------|------------|
+| **データアップロード** | 不要 | 必要 |
+| **最新データ反映** | 自動（PLATEAUの更新に追従） | 手動で再アップロード |
+| **コスト** | 無料 | 有料（無料枠5GB/月） |
+| **カスタマイズ** | 不可（公式データそのまま） | 可能（データ加工後にアップロード） |
+| **URL安定性** | 変更の可能性あり | 自分で管理 |
+| **パフォーマンス** | 公式インフラ | Cesiumの最適化済みインフラ |
+
+### 使い分けの判断基準
+
+**PLATEAU配信サービスを使うべき場合**:
+- PLATEAUデータをそのまま使いたい
+- 最新データを自動で反映したい
+- コストを抑えたい
+- 複数都市のデータを手軽に使いたい
+
+**Cesium ionを使うべき場合**:
+- 独自データを配信したい（自社の建物モデル、点群データなど）
+- PLATEAUデータを加工して使いたい（色変更、フィルタリング、属性追加）
+- PLATEAUにない都市のデータを使いたい
+- URL安定性を自分で管理したい
+
+### PLATEAU配信サービスの使い方
+
+**データカタログAPI**（推奨）:
+```bash
+# 全データセット取得
+curl https://api.plateauview.mlit.go.jp/datacatalog/plateau-datasets
+
+# jqで札幌市の建物データを抽出
+curl -s https://api.plateauview.mlit.go.jp/datacatalog/plateau-datasets | \
+  jq '.datasets | map(select(.city_code == "01100" and .type_en == "bldg" and .format == "3D Tiles"))'
+```
+
+**CesiumJSでの読み込み**:
+```javascript
+// PLATEAU配信サービスから直接読み込み（Cesium ionアセット不要）
+const tileset = viewer.scene.primitives.add(
+  new Cesium.Cesium3DTileset({
+    url: 'https://assets.cms.plateau.reearth.io/assets/.../tileset.json'
+  })
+);
+```
+
+### 参考リンク
+
+| 名称 | URL |
+|------|-----|
+| PLATEAU配信サービス チュートリアル | https://github.com/Project-PLATEAU/plateau-streaming-tutorial |
+| データカタログAPI | https://api.plateauview.mlit.go.jp/datacatalog/plateau-datasets |
+| Cesium ion公式 | https://cesium.com/learn/ion/ |
+| Cesium Japan 3D Buildings | https://cesium.com/blog/2024/06/03/japan-3d-buildings/ |
 
 ---
 
@@ -527,8 +597,9 @@ function animate() {
 | Viewer + useEffect | `MapPage.tsx` で実装済み |
 | 地形プロバイダ | Cesium World Terrain使用 |
 | depthTestAgainstTerrain | 有効化済み |
-| OSMベースマップ | 使用中 |
-| 3D Tiles (LOD1/LOD2) | 中央区・南区・西区を表示 |
+| PLATEAU白地図タイル | ベースマップとして使用 |
+| 3D Tiles (LOD1) | 札幌市全10区をPLATEAU配信サービスから直接読み込み |
+| PLATEAU配信サービス | Cesium ionの代わりに使用（2026-01-04〜） |
 
 ### 参考にできるパターン
 
@@ -539,4 +610,5 @@ function animate() {
 ---
 
 **作成日**: 2025-12-28
+**更新日**: 2026-01-04（PLATEAU配信サービス vs Cesium ionセクション追加）
 **ソース**: PLATEAU公式チュートリアル TOPIC 1-4, 6, 12, 17, 21, 27, 活用事例 uc23-26, uc24-03
